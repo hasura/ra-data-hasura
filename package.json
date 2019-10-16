@@ -1,6 +1,6 @@
 {
   "name": "ra-data-hasura",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "react-admin data provider for Hasura GraphQL Engine",
   "main": "lib/ra-data-hasura.min.js",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hasura/graphql-engine.git"
+    "url": "https://github.com/hasura/ra-data-hasura"
   },
   "keywords": [
     "react-admin",
@@ -22,9 +22,9 @@
   "author": "Praveen Durairaj <praveen@hasura.io>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hasura/graphql-engine/issues"
+    "url": "https://github.com/hasura/ra-data-hasura/issues"
   },
-  "homepage": "https://github.com/hasura/graphql-engine/tree/master/community/tools/ra-data-hasura",
+  "homepage": "https://github.com/hasura/ra-data-hasura",
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.51",
     "@babel/core": "^7.0.0-beta.51",
