@@ -112,7 +112,7 @@ To modify, extend and test this package locally,
 
 ```
 $ cd ra-data-hasura
-$ npm run link
+$ npm link
 ```
 
 Now use this local package in your react app for testing
