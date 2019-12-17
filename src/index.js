@@ -176,7 +176,7 @@ export default (serverEndpoint, httpClient, config) => {
         finalManyRefQuery.args.offset = (params.pagination.page * params.pagination.perPage) - params.pagination.perPage;
         finalManyRefQuery.args.where = { [params.target]: params.id };
         finalManyRefQuery.args.where = addFilters(finalManyRefQuery.args.where, params.filter);
-        finalManyRefQuery.args.order_by = {column: params.sort.field || primaryKey, type: type: typeof params.sort.order === 'undefined' ? 'asc' : params.sort.order.toLowerCase()};
+        finalManyRefQuery.args.order_by = {column: params.sort.field || primaryKey, type: typeof params.sort.order === 'undefined' ? 'asc' : params.sort.order.toLowerCase()};
         finalManyRefCountQuery.args.table = {'name': tableName, 'schema': schema};;
         finalManyRefCountQuery.args.where = {};
         finalManyRefCountQuery.args.where[primaryKey] = { '$ne': null };
