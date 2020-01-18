@@ -2,6 +2,9 @@
 
 > [react-admin](https://github.com/marmelab/react-admin) data provider for Hasura GraphQL Engine
 
+
+_Note: This package utilises the "/v1/query" API. There is also another package "https://github.com/Steams/ra-data-hasura-graphql" which makes use of the hasura graphql endpoint._
+
 ## Installation
 
 ```
