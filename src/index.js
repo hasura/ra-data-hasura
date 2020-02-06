@@ -78,7 +78,7 @@ export default (serverEndpoint, httpClient, config) => {
         finalSelectQuery.args.limit = params.pagination.perPage;
         finalSelectQuery.args.offset = (params.pagination.page * params.pagination.perPage) - params.pagination.perPage;
         finalSelectQuery.args.where = params.filter;
-        finalSelectQuery.args.order_by = {column: params.sort.field || primaryKey, type: typeof params.sort.order === 'undefined' ? 'asc' : params.sort.order.toLowerCase()};
+        finalSelectQuery.args.order_by = {column: primaryKey, type: typeof params.sort.order === 'undefined' ? 'asc' : params.sort.order.toLowerCase()};
         finalCountQuery.args.table = {'name': tableName, 'schema': schema};;
         finalCountQuery.args.where = {};
         finalCountQuery.args.where[primaryKey] = { '$ne': null };
