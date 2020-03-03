@@ -68,6 +68,21 @@ export default (serverEndpoint, httpClient, config) => {
 
     const primaryKey = getPrimaryKey(resource);
 
+    const filteredData = {};
+    if (params.data !== undefined) {
+      Object.keys(params.data).forEach(field => {
+        if (field !== DEFAULT_PRIMARY_KEY) {
+          filteredData[field] = params.data[field];
+        }
+      })
+    }
+    const filteredKeys = Object.keys(filteredData);
+    filteredKeys.push(primaryKey);
+
+    if (params.sort !== undefined && params.sort.field === DEFAULT_PRIMARY_KEY) {
+      params.sort.field = primaryKey;
+    }
+
     switch (type) {
       case 'GET_LIST':
         // select multiple
@@ -96,41 +111,35 @@ export default (serverEndpoint, httpClient, config) => {
         break;
       case 'CREATE':
         // create one
-        const createFields = Object.keys(params.data);
-
         finalQuery = cloneQuery(insertQuery);
         finalQuery.args.table = {'name': tableName, 'schema': schema};
-        finalQuery.args.objects.push(params.data);
-        createFields.push(primaryKey);
-        finalQuery.args.returning = createFields;
+        finalQuery.args.objects.push(filteredData);
+        finalQuery.args.returning = filteredKeys;
         break;
       case 'UPDATE':
         // update one
-        const updateFields = Object.keys(params.data);
-
         finalQuery = cloneQuery(updateQuery);
         finalQuery.args.table = {'name': tableName, 'schema': schema};
-        finalQuery.args['$set'] = params.data;
+        finalQuery.args['$set'] = filteredData;
         finalQuery.args.where = {};
         finalQuery.args.where[primaryKey] = { '$eq': params.id };
-        updateFields.push(primaryKey);
-        finalQuery.args.returning = updateFields;
+        finalQuery.args.returning = filteredKeys;
         break;
       case 'UPDATE_MANY':
         // update multiple ids with given data
-        const updateManyFields = Object.keys(params.data);
-
         finalQuery = cloneQuery(updateQuery);
         finalQuery.args.table = {'name': tableName, 'schema': schema};
-        finalQuery.args['$set'] = params.data;
+        finalQuery.args['$set'] = filteredData;
         finalQuery.args.where = {};
         finalQuery.args.where[primaryKey] = { '$in': params.ids };
-        updateManyFields.push(primaryKey);
-        finalQuery.args.returning = updateManyFields;
+        finalQuery.args.returning = filteredKeys;
         break;
       case 'DELETE':
         // delete one
-        const deleteFields = Object.keys(params.previousData);
+        let deleteFields = Object.keys(params.previousData);
+        if (primaryKey !== DEFAULT_PRIMARY_KEY) {
+          deleteFields = deleteFields.filter(field => field !== DEFAULT_PRIMARY_KEY)
+        }
 
         finalQuery = cloneQuery(deleteQuery);
         finalQuery.args.table = {'name': tableName, 'schema': schema};
@@ -199,13 +208,17 @@ export default (serverEndpoint, httpClient, config) => {
     }
     const primaryKey = getPrimaryKey(resource);
 
+    let returnedResponse = response;
+    if ('returning' in response) {
+      returnedResponse = response.returning;
+    }
     if (primaryKey !== DEFAULT_PRIMARY_KEY) {
       if (Array.isArray(response[0])) {
-        response[0].forEach((res) => {
+        returnedResponse[0].forEach((res) => {
           res[DEFAULT_PRIMARY_KEY] = res[primaryKey];
         });
       } else {
-        response[0][DEFAULT_PRIMARY_KEY] = response[0][primaryKey];
+        returnedResponse[0][DEFAULT_PRIMARY_KEY] = returnedResponse[0][primaryKey];
       }
     }
     switch (type) {
