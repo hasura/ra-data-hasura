@@ -1,3 +1,10 @@
+## 0.0.8 (March 18, 2020)
+
+- Bug Fix: Translate id to primary key for custom primary keys.
+- Bug Fix: Respect primary key on order by.
+- Bug Fix: Fix typo in GET_MANY_REFERENCE.
+- Bug Fix: Set `asc` as default sorting order in GET_LIST.
+
 ## 0.0.7 (September 17, 2019)
 
 - Bug Fix: Re-build library to fix discrepancies. Pass `where` arguments to `count` query.
