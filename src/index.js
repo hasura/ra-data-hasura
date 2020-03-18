@@ -29,7 +29,7 @@ export default (serverEndpoint, httpClient, config) => {
       schema = resourceSplit[0];
       tableName = resourceSplit[1];
     } else {
-      throw new Error(JSON.stringify({'error': 'Invalid table/schema resource'}));
+      throw new Error(JSON.stringify({ 'error': 'Invalid table/schema resource' }));
     }
     return { schema, tableName };
   };
@@ -67,19 +67,19 @@ export default (serverEndpoint, httpClient, config) => {
     let { schema, tableName } = tableSchema;
 
     const primaryKey = getPrimaryKey(resource);
-
+    const orderBy = primaryKey !== DEFAULT_PRIMARY_KEY && params.sort.field === DEFAULT_PRIMARY_KEY ? primaryKey : params.sort.field;
     switch (type) {
       case 'GET_LIST':
         // select multiple
         const finalSelectQuery = cloneQuery(selectQuery);
         const finalCountQuery = cloneQuery(countQuery);
 
-        finalSelectQuery.args.table = {'name': tableName, 'schema': schema};
+        finalSelectQuery.args.table = { 'name': tableName, 'schema': schema };
         finalSelectQuery.args.limit = params.pagination.perPage;
         finalSelectQuery.args.offset = (params.pagination.page * params.pagination.perPage) - params.pagination.perPage;
         finalSelectQuery.args.where = params.filter;
-        finalSelectQuery.args.order_by = {column: primaryKey, type: typeof params.sort.order === 'undefined' ? 'asc' : params.sort.order.toLowerCase()};
-        finalCountQuery.args.table = {'name': tableName, 'schema': schema};;
+        finalSelectQuery.args.order_by = { column: orderBy, type: typeof params.sort.order === 'undefined' ? 'asc' : params.sort.order.toLowerCase() };
+        finalCountQuery.args.table = { 'name': tableName, 'schema': schema };;
         finalCountQuery.args.where = {};
         finalCountQuery.args.where[primaryKey] = { '$ne': null };
         finalCountQuery.args.where = addFilters(finalCountQuery.args.where, params.filter);
@@ -90,7 +90,7 @@ export default (serverEndpoint, httpClient, config) => {
       case 'GET_ONE':
         // select one
         finalQuery = cloneQuery(selectQuery);
-        finalQuery.args.table = {'name': tableName, 'schema': schema};
+        finalQuery.args.table = { 'name': tableName, 'schema': schema };
         finalQuery.args.where = {};
         finalQuery.args.where[primaryKey] = { '$eq': params.id };
         break;
@@ -99,7 +99,7 @@ export default (serverEndpoint, httpClient, config) => {
         const createFields = Object.keys(params.data);
 
         finalQuery = cloneQuery(insertQuery);
-        finalQuery.args.table = {'name': tableName, 'schema': schema};
+        finalQuery.args.table = { 'name': tableName, 'schema': schema };
         finalQuery.args.objects.push(params.data);
         createFields.push(primaryKey);
         finalQuery.args.returning = createFields;
@@ -109,7 +109,7 @@ export default (serverEndpoint, httpClient, config) => {
         const updateFields = Object.keys(params.data);
 
         finalQuery = cloneQuery(updateQuery);
-        finalQuery.args.table = {'name': tableName, 'schema': schema};
+        finalQuery.args.table = { 'name': tableName, 'schema': schema };
         finalQuery.args['$set'] = params.data;
         finalQuery.args.where = {};
         finalQuery.args.where[primaryKey] = { '$eq': params.id };
@@ -121,7 +121,7 @@ export default (serverEndpoint, httpClient, config) => {
         const updateManyFields = Object.keys(params.data);
 
         finalQuery = cloneQuery(updateQuery);
-        finalQuery.args.table = {'name': tableName, 'schema': schema};
+        finalQuery.args.table = { 'name': tableName, 'schema': schema };
         finalQuery.args['$set'] = params.data;
         finalQuery.args.where = {};
         finalQuery.args.where[primaryKey] = { '$in': params.ids };
@@ -133,7 +133,7 @@ export default (serverEndpoint, httpClient, config) => {
         const deleteFields = Object.keys(params.previousData);
 
         finalQuery = cloneQuery(deleteQuery);
-        finalQuery.args.table = {'name': tableName, 'schema': schema};
+        finalQuery.args.table = { 'name': tableName, 'schema': schema };
         finalQuery.args.where = {};
         finalQuery.args.where[primaryKey] = { '$eq': params.id };
         deleteFields.push(primaryKey);
@@ -142,7 +142,7 @@ export default (serverEndpoint, httpClient, config) => {
       case 'DELETE_MANY':
         // delete multiple
         finalQuery = cloneQuery(deleteQuery);
-        finalQuery.args.table = {'name': tableName, 'schema': schema};
+        finalQuery.args.table = { 'name': tableName, 'schema': schema };
         finalQuery.args.where = {};
         finalQuery.args.where[primaryKey] = { '$in': params.ids };
         finalQuery.args.returning = [primaryKey];
@@ -152,12 +152,12 @@ export default (serverEndpoint, httpClient, config) => {
         const finalManyQuery = cloneQuery(selectQuery);
         const finalManyCountQuery = cloneQuery(countQuery);
 
-        finalManyQuery.args.table = {'name': tableName, 'schema': schema};
+        finalManyQuery.args.table = { 'name': tableName, 'schema': schema };
         finalManyQuery.args.where = {};
         finalManyQuery.args.where[primaryKey] = { '$in': params.ids };
         finalManyQuery.args.where = addFilters(finalManyQuery.args.where, params.filter);
 
-        finalManyCountQuery.args.table = {'name': tableName, 'schema': schema};;
+        finalManyCountQuery.args.table = { 'name': tableName, 'schema': schema };;
         finalManyCountQuery.args.where = {};
         finalManyCountQuery.args.where[primaryKey] = { '$ne': null };
         finalManyCountQuery.args.where = addFilters(finalManyCountQuery.args.where, params.filter);
@@ -171,13 +171,13 @@ export default (serverEndpoint, httpClient, config) => {
         const finalManyRefQuery = cloneQuery(selectQuery);
         const finalManyRefCountQuery = cloneQuery(countQuery);
 
-        finalManyRefQuery.args.table = {'name': tableName, 'schema': schema};
+        finalManyRefQuery.args.table = { 'name': tableName, 'schema': schema };
         finalManyRefQuery.args.limit = params.pagination.perPage;
         finalManyRefQuery.args.offset = (params.pagination.page * params.pagination.perPage) - params.pagination.perPage;
         finalManyRefQuery.args.where = { [params.target]: params.id };
         finalManyRefQuery.args.where = addFilters(finalManyRefQuery.args.where, params.filter);
-        finalManyRefQuery.args.order_by = {column: params.sort.field || primaryKey, type: typeof params.sort.order === 'undefined' ? 'asc' : params.sort.order.toLowerCase()};
-        finalManyRefCountQuery.args.table = {'name': tableName, 'schema': schema};;
+        finalManyRefQuery.args.order_by = { column: orderBy, type: typeof params.sort.order === 'undefined' ? 'asc' : params.sort.order.toLowerCase() };
+        finalManyRefCountQuery.args.table = { 'name': tableName, 'schema': schema };;
         finalManyRefCountQuery.args.where = {};
         finalManyRefCountQuery.args.where[primaryKey] = { '$ne': null };
         finalManyRefCountQuery.args.where = addFilters(finalManyRefQuery.args.where, params.filter);
