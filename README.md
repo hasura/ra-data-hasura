@@ -102,6 +102,12 @@ const config = {
 };
 ```
 
+You can pass this configuration to the provider as below:
+
+```
+const dataProvider = hasuraDataProvider('http://localhost:8080', httpClient, config);
+```
+
 ## Known Issues
 
 Filter as you type (search) functionality inside tables is not supported right now. It is a work in progress.
