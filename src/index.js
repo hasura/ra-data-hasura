@@ -1,4 +1,4 @@
-import fromEntries from 'fromentries'
+import fromEntries from 'fromentries';
 import {
   bulkQuery,
   selectQuery,
