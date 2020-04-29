@@ -1,3 +1,4 @@
+import fromEntries from 'fromentries';
 import {
   bulkQuery,
   selectQuery,
@@ -12,6 +13,8 @@ const DEFAULT_PRIMARY_KEY = 'id';
 const cloneQuery = (query) => {
   return JSON.parse(JSON.stringify(query));
 };
+
+const isSameFieldValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 export default (serverEndpoint, httpClient, config) => {
 
@@ -68,16 +71,12 @@ export default (serverEndpoint, httpClient, config) => {
 
     const primaryKey = getPrimaryKey(resource);
 
-    const filteredData = {};
-    if (params.data !== undefined) {
-      Object.keys(params.data).forEach(field => {
-        if (field !== DEFAULT_PRIMARY_KEY) {
-          filteredData[field] = params.data[field];
-        }
-      })
-    }
-    const filteredKeys = Object.keys(filteredData);
-    filteredKeys.push(primaryKey);
+    const filteredData = fromEntries(
+      Object.entries(params.data || {})
+        .filter(([fieldName]) => fieldName !== DEFAULT_PRIMARY_KEY)
+    );
+
+    const filteredKeys = [...Object.keys(filteredData), primaryKey];
 
     if (params.sort !== undefined && params.sort.field === DEFAULT_PRIMARY_KEY) {
       params.sort.field = primaryKey;
@@ -120,7 +119,13 @@ export default (serverEndpoint, httpClient, config) => {
         // update one
         finalQuery = cloneQuery(updateQuery);
         finalQuery.args.table = {'name': tableName, 'schema': schema};
-        finalQuery.args['$set'] = filteredData;
+        finalQuery.args['$set'] = fromEntries(
+          Object.entries(filteredData)
+            // only include fields that have been edited
+            .filter(([fieldName, fieldValue]) => (
+              !isSameFieldValue(fieldValue, params.previousData[fieldName])
+            ))
+        );
         finalQuery.args.where = {};
         finalQuery.args.where[primaryKey] = { '$eq': params.id };
         finalQuery.args.returning = filteredKeys;
