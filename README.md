@@ -1,110 +1,415 @@
 # ra-data-hasura
 
-> [react-admin](https://github.com/marmelab/react-admin) data provider for Hasura GraphQL Engine
+A GraphQL data provider for [react-admin](https://marmelab.com/react-admin) tailored to target [Hasura](https://hasura.io/) GraphQL endpoints.
+
+- [Installation](#installation)
+- [Usage](#installation)
+- [How It Works](#how-it-works)
+- [Options](#options)
+  - [Apollo Client](#customize-the-apollo-client)
+  - [Authentication](#adding-authentication-headers)
+  - [Introspection](#customize-the-introspection)
+- [Customizing queries](#customizing-queries)
+  - [Extending queries to related entities](#example-extending-a-query-to-include-related-entities)
+  - [Fully custom queries](#example-write-a-completely-custom-query)
+
+Example applications demonstrating usage:
+
+- [react-admin-low-code](https://github.com/cpursley/react-admin-low-code) (basic usage)
+- [react-admin-hasura-queries](https://github.com/cpv123/react-admin-hasura-queries) (usage with custom queries)
+
+## Benefits and Motivation
+
+This utility is built on top of [ra-data-graphql](https://github.com/vladimiregorov/react-admin/blob/master/packages/ra-data-graphql/README.md) and is a custom data provider for the current Hasura GraphQL API format.
+
+The existing ra-data-graphql-simple provider, requires that your GraphQL endpoint implement a specific grammar for the objects and methods exposed, which is different with Hasura because the exposed objects and methods are generated differently.
+
+This utility auto generates valid GraphQL queries based on the properties exposed by the Hasura API such as `object_bool_exp` and `object_set_input`.
 
 ## Installation
 
-```
-$ npm install --save ra-data-hasura
+Install with:
+
+```sh
+npm install --save graphql ra-data-hasura
 ```
 
 ## Usage
 
-The `ra-data-hasura` provider accepts three arguments:
-
-- `serverEndpoint` - The URL at which Hasura GraphQL Engine is running. (for example: http://localhost:8080). This is required. It should also expose `/v1/query` endpoint.
-
-- `httpClient` - HTTP Client function. To maintain backwards compatibility the `headers` object is supported.
-
-- `config` - An optional argument. Pass your config here.
-
-```
-hasuraDataProvider(serverEndpoint, httpClient, config)
-```
-
-In the following example, we import `hasuraDataProvider` from `ra-data-hasura` and give it the hasura server endpoint (assumed to be running at http://localhost:8080) and an optional headers object.
+The `ra-data-hasura` package exposes a single function with the following signature:
 
 ```js
-import React from 'react';
-import PostIcon from '@material-ui/icons/Book';
-import UserIcon from '@material-ui/icons/Group';
-import { Admin, Resource, ListGuesser } from 'react-admin';
-import hasuraDataProvider from 'ra-data-hasura';
+buildHasuraProvider(
+  options?: Object,
+  buildGqlQueryOverrides?: Object,
+  customBuildVariables?: Function,
+  customGetResponseParser?: Function,
+) => Function
+```
 
-// The following components are created when following the react-admin tutorial
-import { PostList, PostEdit, PostCreate, PostShow } from './posts';
-import { UserList } from './users';
-import Dashboard from './Dashboard';
-import authProvider from './authProvider';
+See the [Options](#options) and [Customizing queries](#customizing-queries) sections below for more details on these arguments.
 
-const headers = {'content-type': 'application/json', 'authorization': 'bearer <token>'};
-const App = () => (
-  <Admin
-    dataProvider={hasuraDataProvider('http://localhost:8080', headers)}
-    authProvider={authProvider}
-    dashboard={Dashboard}
-  >
-    <Resource
-      name="posts"
-      icon={PostIcon}
-      list={PostList}
-      edit={PostEdit}
-      create={PostCreate}
-      show={PostShow}
-    />
-    <Resource name="users" icon={UserIcon} list={UserList} />
-    <Resource name="comments" list={ListGuesser} />
-  </Admin>
-);
+This function acts as a constructor for a `dataProvider` based on a Hasura GraphQL endpoint. When executed, this function calls the endpoint, running an [introspection](http://graphql.org/learn/introspection/) query to learn about the specific data models exposed by your Hasura endpoint. It uses the result of this query (the GraphQL schema) to automatically configure the `dataProvider` accordingly.
+
+```jsx
+// Initialise the dataProvider before rendering react-admin resources.
+import React, { useState, useEffect } from 'react';
+import buildHasuraProvider from 'ra-data-hasura';
+import { Admin, Resource } from 'react-admin';
+
+import { PostCreate, PostEdit, PostList } from './posts';
+
+const App = () => {
+  const [dataProvider, setDataProvider] = useState(null);
+
+  useEffect(() => {
+    const buildDataProvider = async () => {
+      const dataProvider = await buildHasuraProvider(
+        (clientOptions: { uri: 'http://localhost:8080/v1/graphql' })
+      );
+      setDataProvider(() => dataProvider);
+    };
+    buildDataProvider();
+  }, []);
+
+  if (!dataProvider) return <p>Loading...</p>;
+
+  return (
+    <Admin dataProvider={dataProvider}>
+      <Resource
+        name="Post"
+        list={PostList}
+        edit={PostEdit}
+        create={PostCreate}
+      />
+    </Admin>
+  );
+};
 
 export default App;
-
 ```
 
-In case the server is configured with admin secret or auth, configure the appropriate headers and pass it to the provider.
+## How It Works
 
-### Adding Custom Headers
+The data provider converts React Admin queries into the form expected by Hasura's GraphQL API. For example, a React Admin `GET_LIST` request for a person resource with the parameters :
 
-The above example showed a simple use case of adding static headers. In order to update headers dynamically, the data provider accepts an HTTP client function as the second argument. It uses react-admin's fetchUtils.fetchJson() as HTTP client. Hence to add custom headers to your requests, you just need to wrap the `fetchUtils.fetchJson()` call inside your own function: 
-
-```javascript
-const httpClient = (url, options = {}) => {
-  if (!options.headers) {
-      options.headers = new Headers({ Accept: 'application/json' });
+```json
+{
+  "pagination": { "page": 1, "perPage": 5 },
+  "sort": { "field": "name", "order": "DESC" },
+  "filter": {
+    "ids": [101, 102]
   }
-  // add your own headers here
-  options.headers.set('Authorization', 'Bearer xxxxx');
-  return fetchUtils.fetchJson(url, options);
+}
+```
+
+will generate the following GraphQL request for Hasura :
+
+```
+query person($limit: Int, $offset: Int, $order_by: [person_order_by!]!, $where: person_bool_exp) {
+  items: person(limit: $limit, offset: $offset, order_by: $order_by, where: $where) {
+    id
+    name
+    address_id
+  }
+  total: person_aggregate(limit: $limit, offset: $offset, order_by: $order_by, where: $where) {
+    aggregate {
+      count
+    }
+  }
+}
+```
+
+With the following variables to be passed alongside the query:
+
+```
+{
+  limit: 5,
+  offset: 0,
+  order_by: { name: 'desc' },
+  where: {
+    _and: [
+      {
+        id: {
+          _in: [101, 102]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+React Admin sort and filter objects will be converted appropriately, for example sorting with dot notation:
+
+```jsx
+export const PostList = (props) => (
+  <List {...props} sort={{ field: 'user.email', order: 'DESC' }}>
+    ...
+  </List>
+);
+```
+
+will generate the following GraphQL query variables:
+
+```js
+{
+  limit: 25,
+  offset: 0,
+  order_by: { user: { email: 'desc' } }
+}
+```
+
+## Options
+
+### Customize the Apollo client
+
+You can either supply just the client options:
+
+```js
+buildGraphQLProvider({
+  clientOptions: {
+    uri: 'http://localhost:8080/v1/graphql',
+    ...otherApolloOptions,
+  },
+});
+```
+
+or supply the client instance directly:
+
+```js
+buildGraphQLProvider({ client: myClient });
+```
+
+### Adding Authentication Headers
+
+To send authentication headers, you can use either approach above, but easiest is to supply the client instance directly with headers defined:
+
+```js
+import { ApolloClient } from '@apollo/client';
+
+const myClient = new ApolloClient({
+  uri: 'http://localhost:8080/v1/graphql',
+  headers: {
+    'x-hasura-admin-secret': 'myadminsecretkey',
+    // 'Authorization': `Bearer xxxx`,
+  },
+});
+
+buildHasuraProvider({ client: myClient });
+```
+
+### Customize the introspection
+
+These are the default options for introspection:
+
+```js
+const introspectionOptions = {
+  include: [], // Either an array of types to include or a function which will be called for every type discovered through introspection
+  exclude: [], // Either an array of types to exclude or a function which will be called for every type discovered through introspection
 };
-const dataProvider = hasuraDataProvider('http://localhost:8080', httpClient);
-```
 
-### Multiple schemas
+// Including types
+const introspectionOptions = {
+  include: ['Post', 'Comment'],
+};
 
-To query schemas other than `public`, you can pass schema to resource in the format
- `<Resource name="schema.table" />`.
+// Excluding types
+const introspectionOptions = {
+  exclude: ['CommandItem'],
+};
 
-For example to fetch data from schema `test` and table `author`, use the following snippet:
+// Including types with a function
+const introspectionOptions = {
+  include: (type) => ['Post', 'Comment'].includes(type.name),
+};
 
-```
-  <Resource name="test.author" list={list} />
-```
-
-### Different Primary Keys
-
-Sometimes the table you are querying might have a primary key other than `id`. `react-admin` enforces `id` to be returned in the response by the DataProvider. But you can configure a different primary key column for specific tables using the config object as below:
-
-```
-const config = { 
-  'primaryKey': { 
-      'tableName': 'primaryKeyColumn', 'tableName2': 'primaryKeyColumn' 
-  } 
+// Including types with a function
+const introspectionOptions = {
+  exclude: (type) => !['Post', 'Comment'].includes(type.name),
 };
 ```
 
-## Known Issues
+**Note**: `exclude` and `include` are mutually exclusives and `include` will take precendance.
 
-Filter as you type (search) functionality inside tables is not supported right now. It is a work in progress.
+**Note**: When using functions, the `type` argument will be a type returned by the introspection query. Refer to the [introspection](http://graphql.org/learn/introspection/) documentation for more information.
+
+Pass the introspection options to the `buildApolloProvider` function:
+
+```js
+buildApolloProvider({ introspection: introspectionOptions });
+```
+
+## Customizing queries
+
+Queries built by this data provider are made up of 3 parts:
+
+1. The set of fields requested
+2. The variables defining the query constraints like `where, order_by, limit, offset`
+3. The response format e.g. `{ data: {...}, total: 100 }`
+
+Each of these can be customized - functions overriding numbers 2 and 3 can be passed to directly to `buildDataProvider` as shown in [Usage](#usage), whilst number 1 can be customized in parts using the `buildGqlQueryOverrides` object argument:
+
+```js
+{
+    buildFields?: Function,
+    buildMetaArgs?: Function,
+    buildArgs?: Function,
+    buildApolloArgs?: Function,
+}
+```
+
+A likely scenario is that you want to override only the `buildFields` part so that you can customize your GraphQL queries - requesting fewer fields, more fields, nested fields etc.
+
+This can be easily done, and importantly can be done using `gql` template literal tags, as shown in the exmples below. Take a look at this [demo application](https://github.com/cpv123/react-admin-hasura-queries) to see it in action.
+
+### Example: extending a query to include related entities
+
+By default, the data provider will generate queries that include all fields on a resource, but without any relationships to nested entities. If you would like to keep these base fields but extend the query to also include related entities, then you can write a custom `buildFields` like this:
+
+```jsx
+import buildDataProvider, { buildFields } from 'ra-data-hasura';
+import gql from 'graphql-tag';
+
+/**
+ * Extracts just the fields from a GraphQL AST.
+ * @param {GraphQL AST} queryAst
+ */
+const extractFieldsFromQuery = (queryAst) => {
+  return queryAst.definitions[0].selectionSet.selections;
+};
+
+// Define the additional fields that we want.
+const EXTENDED_GET_ONE_USER = gql`
+  {
+    todos_aggregate {
+      aggregate {
+        count
+      }
+    }
+  }
+`;
+
+const customBuildFields = (type, fetchType) => {
+  const resourceName = type.name;
+
+  // First take the default fields (all, but no related or nested).
+  const defaultFields = buildFields(type, fetchType);
+
+  if (resourceName === 'users' && fetchType === 'GET_ONE') {
+    const relatedEntities = extractFieldsFromQuery(EXTENDED_GET_ONE_USER);
+    defaultFields.push(...relatedEntities);
+  }
+
+  // Extend other queries for other resources/fetchTypes here...
+
+  return defaultFields;
+};
+
+buildDataProvider(options, { buildFields: customBuildFields });
+```
+
+### Example: write a completely custom query
+
+If you want full control over the GraphQL query, then you can define the entire set of fields like this:
+
+```jsx
+import gql from 'graphql-tag';
+import buildDataProvider, { buildFields } from 'ra-data-hasura';
+
+/**
+ * Extracts just the fields from a GraphQL AST.
+ * @param {GraphQL AST} queryAst
+ */
+const extractFieldsFromQuery = (queryAst) => {
+  return queryAst.definitions[0].selectionSet.selections;
+};
+
+const GET_ONE_USER = gql`
+  {
+    id
+    name
+    todos(
+      where: { is_completed: { _eq: false } }
+      order_by: { created_at: asc }
+    ) {
+      title
+    }
+    todos_aggregate {
+      aggregate {
+        count
+      }
+    }
+  }
+`;
+
+const customBuildFields = (type, fetchType) => {
+  const resourceName = type.name;
+
+  if (resourceName === 'users' && fetchType === 'GET_ONE') {
+    return extractFieldsFromQuery(GET_ONE_USER);
+  }
+
+  // No custom query defined, so use the default query fields (all, but no related/nested).
+  return buildFields(type, fetchType);
+};
+
+buildDataProvider(options, { buildFields: customBuildFields });
+```
+
+Note that when using this approach in particular, it is possible that you will come across [this issue](https://github.com/cpv123/react-admin-hasura-queries#troubleshooting).
+
+## Special Filter Feature
+
+This adapter allows filtering several columns at a time with using specific comparators, e.g. `ilike`, `like`, `eq`, etc.
+
+```tsx
+<Filter {...props}>
+  <TextInput
+    label="Search"
+    source="email,first_name@_eq,last_name@_like"
+    alwaysOn
+  />
+</Filter>
+```
+
+It will generate the following filter payload
+
+```json
+{
+  "variables": {
+    "where": {
+      "_and": [],
+      "_or": [
+        {
+          "email": {
+            "_ilike": "%edu%"
+          }
+        },
+        {
+          "first_name": {
+            "_eq": "edu"
+          }
+        },
+        {
+          "last_name": {
+            "_like": "%edu%"
+          }
+        }
+      ]
+    },
+    "limit": 10,
+    "offset": 0,
+    "order_by": {
+      "id": "asc"
+    }
+  }
+}
+```
+
+The adapter assigns default comparator depends on the data type if it is not provided.
+For string data types, it assumes as text search and uses `ilike` otherwise it uses `eq`.
+For string data types that uses `like` or `ilike` it automatically transform the filter `value` as `%value%`.
 
 ## Contributing
 
@@ -116,6 +421,7 @@ $ npm link
 ```
 
 Now use this local package in your react app for testing
+
 ```
 $ cd my-react-app
 $ npm link ra-data-hasura
@@ -123,4 +429,6 @@ $ npm link ra-data-hasura
 
 Build the library by running `npm run build` and it will generate the transpiled version of the library under `lib` folder.
 
+## Credits
 
+We would like to thank [Steams](https://github.com/Steams) and all the contributors to this library for porting this adapter to support GraphQL spec, since all the releases till v0.0.8 were based off the REST API spec.
