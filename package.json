@@ -1,18 +1,19 @@
 {
-  "name": "ra-data-hasura-graphql",
-  "version": "0.1.12",
+  "name": "ra-data-hasura",
+  "version": "0.0.8",
   "description": "A data provider for connecting react-admin to a Hasura endpoint",
   "main": "dist/index.js",
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/steams/ra-data-hasura-graphql.git"
+    "url": "git+https://github.com/hasura/ra-data-hasura.git"
   },
   "bugs": {
-    "url": "https://github.com/steams/ra-data-hasura-graphql/issues"
+    "url": "https://github.com/hasura/ra-data-hasura/issues"
   },
-  "homepage": "https://github.com/steams/ra-data-hasura-graphql#readme",
+  "homepage": "https://github.com/hasura/ra-data-hasura#readme",
   "authors": [
+    "Praveen Durairaju",
     "Radcliffe Robinson"
   ],
   "keywords": [

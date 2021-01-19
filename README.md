@@ -1,4 +1,4 @@
-# ra-data-hasura-graphql
+# ra-data-hasura
 
 A GraphQL data provider for [react-admin](https://marmelab.com/react-admin) tailored to target [Hasura](https://hasura.io/) GraphQL endpoints.
 
@@ -18,11 +18,11 @@ Example applications demonstrating usage:
 - [react-admin-low-code](https://github.com/cpursley/react-admin-low-code) (basic usage)
 - [react-admin-hasura-queries](https://github.com/cpv123/react-admin-hasura-queries) (usage with custom queries)
 
-## Benifits and Motivation
+## Benefits and Motivation
 
 This utility is built on top of [ra-data-graphql](https://github.com/vladimiregorov/react-admin/blob/master/packages/ra-data-graphql/README.md) and is a custom data provider for the current Hasura GraphQL API format.
 
-The existing ra-data-hasura provider communicates with Hasura V1, using standard REST and not GraphQL. The existing ra-data-graphql-simple provider, requires that your GraphQL endpoint implement a specific grammar for the objects and methods exposed, which is not an option available if you intend to use a Hasura API because the exposed objects and methods are generated to match their own specification.
+The existing ra-data-graphql-simple provider, requires that your GraphQL endpoint implement a specific grammar for the objects and methods exposed, which is different with Hasura because the exposed objects and methods are generated differently.
 
 This utility auto generates valid GraphQL queries based on the properties exposed by the Hasura API such as `object_bool_exp` and `object_set_input`.
 
@@ -31,12 +31,12 @@ This utility auto generates valid GraphQL queries based on the properties expose
 Install with:
 
 ```sh
-npm install --save graphql ra-data-hasura-graphql
+npm install --save graphql ra-data-hasura
 ```
 
 ## Usage
 
-The `ra-data-hasura-graphql` package exposes a single function with the following signature:
+The `ra-data-hasura` package exposes a single function with the following signature:
 
 ```js
 buildHasuraProvider(
@@ -54,7 +54,7 @@ This function acts as a constructor for a `dataProvider` based on a Hasura Graph
 ```jsx
 // Initialise the dataProvider before rendering react-admin resources.
 import React, { useState, useEffect } from 'react';
-import buildHasuraProvider from 'ra-data-hasura-graphql';
+import buildHasuraProvider from 'ra-data-hasura';
 import { Admin, Resource } from 'react-admin';
 
 import { PostCreate, PostEdit, PostList } from './posts';
@@ -268,7 +268,7 @@ This can be easily done, and importantly can be done using `gql` template litera
 By default, the data provider will generate queries that include all fields on a resource, but without any relationships to nested entities. If you would like to keep these base fields but extend the query to also include related entities, then you can write a custom `buildFields` like this:
 
 ```jsx
-import buildDataProvider, { buildFields } from 'ra-data-hasura-graphql';
+import buildDataProvider, { buildFields } from 'ra-data-hasura';
 import gql from 'graphql-tag';
 
 /**
@@ -315,7 +315,7 @@ If you want full control over the GraphQL query, then you can define the entire 
 
 ```jsx
 import gql from 'graphql-tag';
-import buildDataProvider, { buildFields } from 'ra-data-hasura-graphql';
+import buildDataProvider, { buildFields } from 'ra-data-hasura';
 
 /**
  * Extracts just the fields from a GraphQL AST.
@@ -411,7 +411,24 @@ The adapter assigns default comparator depends on the data type if it is not pro
 For string data types, it assumes as text search and uses `ilike` otherwise it uses `eq`.
 For string data types that uses `like` or `ilike` it automatically transform the filter `value` as `%value%`.
 
+## Contributing
+
+To modify, extend and test this package locally,
+
+```
+$ cd ra-data-hasura
+$ npm link
+```
+
+Now use this local package in your react app for testing
+
+```
+$ cd my-react-app
+$ npm link ra-data-hasura
+```
+
+Build the library by running `npm run build` and it will generate the transpiled version of the library under `lib` folder.
 
 ## Credits
 
-We would like to thank [Steams](https://github.com/Steams) and all the contributors to this library. Hasura team decided to take over on this project to maintain it.
+We would like to thank [Steams](https://github.com/Steams) and all the contributors to this library for porting this adapter to support GraphQL spec, since all the releases till v0.0.8 were based off the REST API spec.
