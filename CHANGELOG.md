@@ -1,3 +1,7 @@
+## 0.1.0 (January 19, 2021)
+
+- **Breaking change**: This release is a complete rewrite of the library, replacing the API with code from `ra-data-hasura-graphql` library. The `steams/ra-data-hasura-graphql` will henceforth be archived. Refer `README.md` for usage instructions.
+
 ## 0.0.8 (March 18, 2020)
 
 - Bug Fix: Translate id to primary key for custom primary keys.
