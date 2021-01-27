@@ -157,6 +157,20 @@ const buildCreateVariables = (resource, aorFetchType, params, queryType) => {
   return params.data;
 };
 
+const makeNestedTarget = (target, id) =>
+  // This simple example should make clear what this function does
+  // makeNestedTarget("a.b", 42)
+  // => { a: { b: { _eq: 42 } } }
+  target
+    .split('.')
+    .reverse()
+    .reduce(
+      (acc, key) => ({
+        [key]: acc,
+      }),
+      { _eq: id }
+    );
+
 export default (introspectionResults) => (
   resource,
   aorFetchType,
@@ -184,16 +198,14 @@ export default (introspectionResults) => (
           where: {
             _and: [
               ...built['where']['_and'],
-              { [params.target]: { _eq: params.id } },
+              makeNestedTarget(params.target, params.id),
             ],
           },
         };
       }
       return {
         ...built,
-        where: {
-          [params.target]: { _eq: params.id },
-        },
+        where: makeNestedTarget(params.target, params.id),
       };
     }
     case GET_MANY:
