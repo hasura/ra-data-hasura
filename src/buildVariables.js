@@ -54,6 +54,16 @@ const buildGetListVariables = (introspectionResults) => (
     };
   }, {});
   filterObj = omit(filterObj, orFilterKeys);
+
+  const makeNestedFilter = (obj, operation) => {
+    if (Object.keys(obj).length === 1) {
+      const [key] = Object.keys(obj);
+      return { [key]: makeNestedFilter(obj[key], operation) };
+    } else {
+      return { [operation]: obj };
+    }
+  };
+
   const filterReducer = (obj) => (acc, key) => {
     let filter;
     if (key === 'ids') {
@@ -66,19 +76,22 @@ const buildGetListVariables = (introspectionResults) => (
       let [keyName, operation = ''] = key.split('@');
       const field = resource.type.fields.find((f) => f.name === keyName);
       if (field ) {
-        switch (getFinalType(field.type).name) {
-          case 'String':
-            operation = operation || '_ilike';
-            filter = {
-              [keyName]: {
-                [operation]: operation.includes('like')
+        const finalType = getFinalType(field.type);
+        if (finalType.name === 'String') {
+          operation = operation || '_ilike';
+          filter = {
+            [keyName]: {
+              [operation]: operation.includes('like')
                   ? `%${obj[key]}%`
                   : obj[key],
-              },
-            };
-            break;
-          default:
-            filter = { [keyName]: { [operation || '_eq']: obj[key] } };
+            },
+          };
+        } else if (finalType.kind === 'OBJECT') {
+          operation = operation || '_eq';
+          filter = { [keyName]: makeNestedFilter(obj[keyName], operation) };
+        } else {
+          operation = operation || '_eq';
+          filter = { [keyName]: { [operation]: obj[key] } };
         }
       }
     }
