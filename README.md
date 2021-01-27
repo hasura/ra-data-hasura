@@ -52,7 +52,7 @@ See the [Options](#options) and [Customizing queries](#customizing-queries) sect
 This function acts as a constructor for a `dataProvider` based on a Hasura GraphQL endpoint. When executed, this function calls the endpoint, running an [introspection](http://graphql.org/learn/introspection/) query to learn about the specific data models exposed by your Hasura endpoint. It uses the result of this query (the GraphQL schema) to automatically configure the `dataProvider` accordingly.
 
 ```jsx
-// Initialise the dataProvider before rendering react-admin resources.
+// Initialize the dataProvider before rendering react-admin resources.
 import React, { useState, useEffect } from 'react';
 import buildHasuraProvider from 'ra-data-hasura';
 import { Admin, Resource } from 'react-admin';
@@ -65,7 +65,7 @@ const App = () => {
   useEffect(() => {
     const buildDataProvider = async () => {
       const dataProvider = await buildHasuraProvider(
-        (clientOptions: { uri: 'http://localhost:8080/v1/graphql' })
+        { clientOptions: { uri: 'http://localhost:8080/v1/graphql' } }
       );
       setDataProvider(() => dataProvider);
     };
