@@ -183,21 +183,52 @@ buildGraphQLProvider({ client: myClient });
 
 ### Adding Authentication Headers
 
-To send authentication headers, you can use either approach above, but easiest is to supply the client instance directly with headers defined:
+To send authentication headers, you'll need to supply the client instance directly with headers defined:
 
 ```js
-import { ApolloClient } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 
-const myClient = new ApolloClient({
+const myClientWithAuth = new ApolloClient({
   uri: 'http://localhost:8080/v1/graphql',
+  cache: new InMemoryCache(),
   headers: {
-    'x-hasura-admin-secret': 'myadminsecretkey',
+    'x-hasura-admin-secret': 'hasuraAdminSecret',
     // 'Authorization': `Bearer xxxx`,
   },
 });
 
-buildHasuraProvider({ client: myClient });
+buildHasuraProvider({ client: myClientWithAuth });
 ```
+
+<details style="margin-bottom: 20px">
+
+<summary style="margin-bottom: 10px">Adding headers using just client options</summary>
+
+  You can also add headers using only client options rather than the client itself:
+    
+  ```js
+  import { createHttpLink } from '@apollo/client';
+  import { setContext } from '@apollo/client/link/context';
+
+  const authLink = setContext((_, { headers }) => ({
+    headers: {
+      ...headers,
+      'x-hasura-admin-secret': 'hasuraAdminSecret',
+      // 'Authorization': `Bearer xxxx`,
+    },
+  }));
+
+  const httpLink = createHttpLink({
+    uri: "http://localhost:8080/v1/graphql",
+  });
+
+  const clientOptionsWithAuth = {
+    link: authLink.concat(httpLink),
+  };
+
+  buildHasuraProvider({ client: clientOptionsWithAuth });
+  ```
+</details>
 
 ### Customize the introspection
 
