@@ -65,7 +65,7 @@ const buildGetListVariables = (introspectionResults) => (
     } else {
       let [keyName, operation = ''] = key.split('@');
       const field = resource.type.fields.find((f) => f.name === keyName);
-      if (field ) {
+      if (field) {
         switch (getFinalType(field.type).name) {
           case 'String':
             operation = operation || '_ilike';
@@ -84,14 +84,12 @@ const buildGetListVariables = (introspectionResults) => (
     }
     return [...acc, filter];
   };
-  const andFilters = Object.keys(filterObj).reduce(
-    filterReducer(filterObj),
-    customFilters
-  ).filter(Boolean);
-  const orFilters = Object.keys(orFilterObj).reduce(
-    filterReducer(orFilterObj),
-    []
-  ).filter(Boolean);
+  const andFilters = Object.keys(filterObj)
+    .reduce(filterReducer(filterObj), customFilters)
+    .filter(Boolean);
+  const orFilters = Object.keys(orFilterObj)
+    .reduce(filterReducer(orFilterObj), [])
+    .filter(Boolean);
 
   result['where'] = {
     _and: andFilters,

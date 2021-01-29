@@ -37,7 +37,6 @@ export const buildFields = (type) =>
   type.fields.reduce((acc, field) => {
     const type = getFinalType(field.type);
 
-
     if (type.kind !== TypeKind.OBJECT && type.kind !== TypeKind.INTERFACE) {
       return [...acc, gqlTypes.field(gqlTypes.name(field.name))];
     }
@@ -158,7 +157,8 @@ export const buildGqlQuery = (
   buildFields,
   buildMetaArgs,
   buildArgs,
-  buildApolloArgs
+  buildApolloArgs,
+  aggregateFieldName
 ) => (resource, aorFetchType, queryType, variables) => {
   const { sortField, sortOrder, ...metaVariables } = variables;
   const apolloArgs = buildApolloArgs(queryType, variables);
@@ -182,7 +182,7 @@ export const buildGqlQuery = (
             gqlTypes.selectionSet(fields)
           ),
           gqlTypes.field(
-            gqlTypes.name(`${queryType.name}_aggregate`),
+            gqlTypes.name(aggregateFieldName(queryType.name)),
             gqlTypes.name('total'),
             metaArgs,
             null,
