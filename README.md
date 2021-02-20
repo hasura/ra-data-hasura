@@ -424,7 +424,7 @@ Nested filtering is supported using # as a field separator.
 ```tsx
 <TextInput
   label="Search by indication, drug, sponsor, nctid"
-  source="indication#name@_ilike,drug#preferred_name@_ilike,sponsor#name@_ilike"
+  source="indication#name@_ilike,drug#preferred_name@_ilike,sponsor#name@_ilike,trial#nctid@_ilike"
   alwaysOn
 />
 ```

@@ -86,7 +86,6 @@ const buildGetListVariables = (introspectionResults) => (
                 ? `%${obj[key]}%`
                 : obj[key],
             };
-            console.log('setting', {}, keyName.split(SPLIT_TOKEN), operator);
             filter = set({}, keyName.split(SPLIT_TOKEN), operator);
             break;
           default:
@@ -95,12 +94,6 @@ const buildGetListVariables = (introspectionResults) => (
                 ? `%${obj[key]}%`
                 : obj[key],
             };
-            console.log(
-              'setting (default)',
-              {},
-              keyName.split(SPLIT_TOKEN),
-              operator
-            );
             filter = set({}, keyName.split(SPLIT_TOKEN), {
               [operation || '_eq']: obj[key],
             });
