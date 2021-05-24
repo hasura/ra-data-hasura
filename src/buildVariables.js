@@ -118,7 +118,7 @@ const buildGetListVariables = (introspectionResults) => (
 /**
  * Returns a reducer that converts the react-admin key-values to hasura-acceptable values
  *
- * Currently that means that dates should never be an empty string, but in the future
+ * Currently that means that dates should never be an empty string, but in the future that can be extended
  * See https://github.com/marmelab/react-admin/pull/6199
  *
  */
