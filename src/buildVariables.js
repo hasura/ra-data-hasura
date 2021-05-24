@@ -65,6 +65,16 @@ const buildGetListVariables = (introspectionResults) => (
     };
   }, {});
   filterObj = omit(filterObj, orFilterKeys);
+
+  const makeNestedFilter = (obj, operation) => {
+    if (Object.keys(obj).length === 1) {
+      const [key] = Object.keys(obj);
+      return { [key]: makeNestedFilter(obj[key], operation) };
+    } else {
+      return { [operation]: obj };
+    }
+  };
+
   const filterReducer = (obj) => (acc, key) => {
     let filter;
     if (key === 'ids') {
@@ -142,7 +152,12 @@ const buildGetListVariables = (introspectionResults) => (
   return result;
 };
 
-const buildUpdateVariables = (resource, aorFetchType, params, queryType) =>
+const buildUpdateVariables = (introspectionResults) => (
+  resource,
+  aorFetchType,
+  params,
+  queryType
+) =>
   Object.keys(params.data).reduce((acc, key) => {
     // If hasura permissions do not allow a field to be updated like (id),
     // we are not allowed to put it inside the variables
@@ -156,9 +171,21 @@ const buildUpdateVariables = (resource, aorFetchType, params, queryType) =>
     }
 
     if (resource.type.fields.some((f) => f.name === key)) {
+      const type = introspectionResults.types.find(
+        (t) => t.name === resource.type.name
+      );
+      // Fix for Bug introduced here: https://github.com/marmelab/react-admin/pull/6199
+      const field = type.fields.find((t) => t.name === key);
+      const value =
+        field &&
+        field.type &&
+        field.type.name === 'date' &&
+        params.data[key] == ''
+          ? null
+          : params.data[key];
       return {
         ...acc,
-        [key]: params.data[key],
+        [key]: value,
       };
     }
 
@@ -168,6 +195,20 @@ const buildUpdateVariables = (resource, aorFetchType, params, queryType) =>
 const buildCreateVariables = (resource, aorFetchType, params, queryType) => {
   return params.data;
 };
+
+const makeNestedTarget = (target, id) =>
+  // This simple example should make clear what this function does
+  // makeNestedTarget("a.b", 42)
+  // => { a: { b: { _eq: 42 } } }
+  target
+    .split('.')
+    .reverse()
+    .reduce(
+      (acc, key) => ({
+        [key]: acc,
+      }),
+      { _eq: id }
+    );
 
 export default (introspectionResults) => (
   resource,
@@ -196,16 +237,14 @@ export default (introspectionResults) => (
           where: {
             _and: [
               ...built['where']['_and'],
-              { [params.target]: { _eq: params.id } },
+              makeNestedTarget(params.target, params.id),
             ],
           },
         };
       }
       return {
         ...built,
-        where: {
-          [params.target]: { _eq: params.id },
-        },
+        where: makeNestedTarget(params.target, params.id),
       };
     }
     case GET_MANY:
@@ -236,13 +275,23 @@ export default (introspectionResults) => (
 
     case UPDATE:
       return {
-        _set: buildUpdateVariables(resource, aorFetchType, params, queryType),
+        _set: buildUpdateVariables(introspectionResults)(
+          resource,
+          aorFetchType,
+          params,
+          queryType
+        ),
         where: { id: { _eq: params.id } },
       };
 
     case UPDATE_MANY:
       return {
-        _set: buildUpdateVariables(resource, aorFetchType, params, queryType),
+        _set: buildUpdateVariables(introspectionResults)(
+          resource,
+          aorFetchType,
+          params,
+          queryType
+        ),
         where: { id: { _in: params.ids } },
       };
   }
