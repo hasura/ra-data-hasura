@@ -6098,12 +6098,14 @@ PERFORMANCE OF THIS SOFTWARE.
                       ((t = Object(i.a)(Object(i.a)({}, t), { variables: d })),
                       (T = b = 'network-only' === c || 'no-cache' === c),
                       b ||
-                        ((g = this.dataStore.getCache().diff({
-                          query: p,
-                          variables: d,
-                          returnPartialData: !0,
-                          optimistic: !1,
-                        })),
+                        ((g = this.dataStore
+                          .getCache()
+                          .diff({
+                            query: p,
+                            variables: d,
+                            returnPartialData: !0,
+                            optimistic: !1,
+                          })),
                         (E = g.complete),
                         (O = g.result),
                         (T = !E || 'cache-and-network' === c),
@@ -6258,12 +6260,14 @@ PERFORMANCE OF THIS SOFTWARE.
                             (E && E.graphQLErrors) !== n.graphQLErrors;
                         if (f && f.data && !O) (T = f.data), (g = !1);
                         else {
-                          var _ = r.dataStore.getCache().diff({
-                            query: s,
-                            variables: n.previousVariables || n.variables,
-                            returnPartialData: !0,
-                            optimistic: !0,
-                          });
+                          var _ = r.dataStore
+                            .getCache()
+                            .diff({
+                              query: s,
+                              variables: n.previousVariables || n.variables,
+                              returnPartialData: !0,
+                              optimistic: !0,
+                            });
                           (T = _.result), (g = !_.complete);
                         }
                       }
@@ -6513,13 +6517,15 @@ PERFORMANCE OF THIS SOFTWARE.
             if (s && s.complete) return { data: s.result, partial: !1 };
             if ('no-cache' === o || 'network-only' === o)
               return { data: void 0, partial: !1 };
-            var c = this.dataStore.getCache().diff({
-                query: i,
-                variables: r,
-                previousResult: u ? u.data : void 0,
-                returnPartialData: !0,
-                optimistic: t,
-              }),
+            var c = this.dataStore
+                .getCache()
+                .diff({
+                  query: i,
+                  variables: r,
+                  previousResult: u ? u.data : void 0,
+                  returnPartialData: !0,
+                  optimistic: t,
+                }),
               l = c.result,
               f = c.complete;
             return { data: f || a ? l : void 0, partial: !f };
@@ -6666,12 +6672,14 @@ PERFORMANCE OF THIS SOFTWARE.
                     if (('all' === p && (n = e.errors), c || 'no-cache' === d))
                       t = e.data;
                     else {
-                      var r = i.dataStore.getCache().diff({
-                          variables: l,
-                          query: u,
-                          optimistic: !1,
-                          returnPartialData: !0,
-                        }),
+                      var r = i.dataStore
+                          .getCache()
+                          .diff({
+                            variables: l,
+                            query: u,
+                            optimistic: !1,
+                            returnPartialData: !0,
+                          }),
                         v = r.result;
                       (r.complete || s.returnPartialData) && (t = v);
                     }
@@ -20487,31 +20495,31 @@ PERFORMANCE OF THIS SOFTWARE.
     'use strict';
     n.r(t),
       n.d(t, 'buildFields', function () {
-        return Z;
+        return ee;
       }),
       n.d(t, 'buildMetaArgs', function () {
-        return ne;
-      }),
-      n.d(t, 'buildArgs', function () {
-        return te;
-      }),
-      n.d(t, 'buildApolloArgs', function () {
         return re;
       }),
-      n.d(t, 'defaultBuildVariables', function () {
-        return B;
+      n.d(t, 'buildArgs', function () {
+        return ne;
       }),
-      n.d(t, 'defaultGetResponseParser', function () {
-        return $;
-      }),
-      n.d(t, 'buildQuery', function () {
-        return ae;
-      }),
-      n.d(t, 'buildGqlQuery', function () {
+      n.d(t, 'buildApolloArgs', function () {
         return ie;
       }),
+      n.d(t, 'defaultBuildVariables', function () {
+        return Y;
+      }),
+      n.d(t, 'defaultGetResponseParser', function () {
+        return J;
+      }),
+      n.d(t, 'buildQuery', function () {
+        return ue;
+      }),
+      n.d(t, 'buildGqlQuery', function () {
+        return oe;
+      }),
       n.d(t, 'buildVariables', function () {
-        return B;
+        return Y;
       });
     var r,
       i,
@@ -21154,36 +21162,42 @@ PERFORMANCE OF THIS SOFTWARE.
           r
         );
       },
-      G = (e) => (t, n, r, i) =>
-        Object.keys(r.data).reduce((n, i) => {
-          if (r.previousData && r.data[i] === r.previousData[i]) return n;
-          if (t.type.fields.some((e) => e.name === i)) {
-            const o = e.types
-                .find((e) => e.name === t.type.name)
-                .fields.find((e) => e.name === i),
-              a =
-                o && o.type && 'date' === o.type.name && '' == r.data[i]
-                  ? null
-                  : r.data[i];
-            return { ...n, [i]: a };
-          }
-          return n;
-        }, {}),
-      U = (e, t, n, r) => n.data,
-      q = (e, t) =>
+      G = (e, t, n) => (r, i) => {
+        const o = e.types
+            .find((e) => e.name === t.type.name)
+            .fields.find((e) => e.name === i),
+          a =
+            o && o.type && 'date' === o.type.name && '' === n.data[i]
+              ? null
+              : n.data[i];
+        return t.type.fields.some((e) => e.name === i) ? { ...r, [i]: a } : r;
+      },
+      U = (e) => (t, n, r, i) => {
+        const o = G(e, t, r);
+        return Object.keys(r.data).reduce(
+          (e, t) =>
+            r.previousData && r.data[t] === r.previousData[t] ? e : o(e, t),
+          {}
+        );
+      },
+      q = (e) => (t, n, r, i) => {
+        const o = G(e, t, r);
+        return Object.keys(r.data).reduce(o, {});
+      },
+      B = (e, t) =>
         e
           .split('.')
           .reverse()
           .reduce((e, t) => ({ [t]: e }), { _eq: t });
-    var B = (e) => (t, n, r, i) => {
+    var Y = (e) => (t, n, r, i) => {
       switch (n) {
         case 'GET_LIST':
           return K()(t, n, r, i);
         case 'GET_MANY_REFERENCE':
           var o = K()(t, n, r, i);
           return r.filter
-            ? { ...o, where: { _and: [...o.where._and, q(r.target, r.id)] } }
-            : { ...o, where: q(r.target, r.id) };
+            ? { ...o, where: { _and: [...o.where._and, B(r.target, r.id)] } }
+            : { ...o, where: B(r.target, r.id) };
         case 'GET_MANY':
         case 'DELETE_MANY':
           return { where: { id: { _in: r.ids } } };
@@ -21192,14 +21206,14 @@ PERFORMANCE OF THIS SOFTWARE.
         case 'DELETE':
           return { where: { id: { _eq: r.id } } };
         case 'CREATE':
-          return { objects: U(0, 0, r) };
+          return { objects: q(e)(t, n, r, i) };
         case 'UPDATE':
-          return { _set: G(e)(t, n, r, i), where: { id: { _eq: r.id } } };
+          return { _set: U(e)(t, n, r, i), where: { id: { _eq: r.id } } };
         case 'UPDATE_MANY':
-          return { _set: G(e)(t, n, r, i), where: { id: { _in: r.ids } } };
+          return { _set: U(e)(t, n, r, i), where: { id: { _in: r.ids } } };
       }
     };
-    const Y = (e = {}) =>
+    const $ = (e = {}) =>
       Object.keys(e).reduce((t, n) => {
         if (n.startsWith('_')) return t;
         const r = e[n];
@@ -21208,27 +21222,27 @@ PERFORMANCE OF THIS SOFTWARE.
           : Array.isArray(r)
           ? r[0] && 'object' == typeof r[0]
             ? null != r[0].id
-              ? { ...t, [n]: r.map(Y), [n + 'Ids']: r.map((e) => e.id) }
-              : { ...t, [n]: r.map(Y) }
+              ? { ...t, [n]: r.map($), [n + 'Ids']: r.map((e) => e.id) }
+              : { ...t, [n]: r.map($) }
             : { ...t, [n]: r }
           : 'object' == typeof r
-          ? { ...t, ...(r && r.id && { [n + '.id']: r.id }), [n]: Y(r) }
+          ? { ...t, ...(r && r.id && { [n + '.id']: r.id }), [n]: $(r) }
           : { ...t, [n]: r };
       }, {});
-    var $ = (e) => (e, t) => (t) => {
+    var J = (e) => (e, t) => (t) => {
         const n = t.data;
         switch (e) {
           case 'GET_MANY_REFERENCE':
           case 'GET_LIST':
-            return { data: n.items.map(Y), total: n.total.aggregate.count };
+            return { data: n.items.map($), total: n.total.aggregate.count };
           case 'GET_MANY':
-            return { data: n.items.map(Y) };
+            return { data: n.items.map($) };
           case 'GET_ONE':
-            return { data: Y(n.returning[0]) };
+            return { data: $(n.returning[0]) };
           case 'CREATE':
           case 'UPDATE':
           case 'DELETE':
-            return { data: Y(n.data.returning[0]) };
+            return { data: $(n.data.returning[0]) };
           case 'UPDATE_MANY':
           case 'DELETE_MANY':
             return { data: n.data.returning.map((e) => e.id) };
@@ -21236,35 +21250,35 @@ PERFORMANCE OF THIS SOFTWARE.
             throw Error('Expected a propper fetchType, got: ', e);
         }
       },
-      J = n(2);
-    const z = (e) =>
-      e.kind === Q.TypeKind.NON_NULL ? z(e.ofType) : e.kind === Q.TypeKind.LIST;
-    var W = z;
-    const H = (e) =>
-      e.kind === Q.TypeKind.LIST ? H(e.ofType) : e.kind === Q.TypeKind.NON_NULL;
-    var X = H;
-    const Z = (e) =>
+      z = n(2);
+    const W = (e) =>
+      e.kind === Q.TypeKind.NON_NULL ? W(e.ofType) : e.kind === Q.TypeKind.LIST;
+    var H = W;
+    const X = (e) =>
+      e.kind === Q.TypeKind.LIST ? X(e.ofType) : e.kind === Q.TypeKind.NON_NULL;
+    var Z = X;
+    const ee = (e) =>
         e.fields.reduce((e, t) => {
           const n = C(t.type);
           return n.kind !== Q.TypeKind.OBJECT && n.kind !== Q.TypeKind.INTERFACE
-            ? [...e, J.field(J.name(t.name))]
+            ? [...e, z.field(z.name(t.name))]
             : e;
         }, []),
-      ee = (e) => {
+      te = (e) => {
         const t = C(e.type),
-          n = X(e.type),
-          r = W(e.type);
+          n = Z(e.type),
+          r = H(e.type);
         return n
           ? r
-            ? J.nonNullType(
-                J.listType(J.nonNullType(J.namedType(J.name(t.name))))
+            ? z.nonNullType(
+                z.listType(z.nonNullType(z.namedType(z.name(t.name))))
               )
-            : J.nonNullType(J.namedType(J.name(t.name)))
+            : z.nonNullType(z.namedType(z.name(t.name)))
           : r
-          ? J.listType(J.namedType(J.name(t.name)))
-          : J.namedType(J.name(t.name));
+          ? z.listType(z.namedType(z.name(t.name)))
+          : z.namedType(z.name(t.name));
       },
-      te = (e, t) => {
+      ne = (e, t) => {
         if (0 === e.args.length) return [];
         const n = Object.keys(t).filter((e) => void 0 !== t[e]);
         return e.args
@@ -21272,12 +21286,12 @@ PERFORMANCE OF THIS SOFTWARE.
           .reduce(
             (e, t) => [
               ...e,
-              J.argument(J.name(t.name), J.variable(J.name(t.name))),
+              z.argument(z.name(t.name), z.variable(z.name(t.name))),
             ],
             []
           );
       },
-      ne = (e, t, n) => {
+      re = (e, t, n) => {
         if (0 === e.args.length) return [];
         const r = Object.keys(t).filter((e) =>
           'GET_LIST' === n || 'GET_MANY' === n || 'GET_MANY_REFERENCE' === n
@@ -21289,12 +21303,12 @@ PERFORMANCE OF THIS SOFTWARE.
           .reduce(
             (e, t) => [
               ...e,
-              J.argument(J.name(t.name), J.variable(J.name(t.name))),
+              z.argument(z.name(t.name), z.variable(z.name(t.name))),
             ],
             []
           );
       },
-      re = (e, t) => {
+      ie = (e, t) => {
         if (0 === e.args.length) return [];
         const n = Object.keys(t).filter((e) => void 0 !== t[e]);
         return e.args
@@ -21302,12 +21316,12 @@ PERFORMANCE OF THIS SOFTWARE.
           .reduce(
             (e, t) => [
               ...e,
-              J.variableDefinition(J.variable(J.name(t.name)), ee(t)),
+              z.variableDefinition(z.variable(z.name(t.name)), te(t)),
             ],
             []
           );
       },
-      ie = (e, t, n, r, i) => (e, o, a, u) => {
+      oe = (e, t, n, r, i) => (e, o, a, u) => {
         const { sortField: s, sortOrder: c, ...l } = u,
           f = i(a, u),
           p = r(a, u),
@@ -21316,34 +21330,34 @@ PERFORMANCE OF THIS SOFTWARE.
         return 'GET_LIST' === o ||
           'GET_MANY' === o ||
           'GET_MANY_REFERENCE' === o
-          ? J.document([
-              J.operationDefinition(
+          ? z.document([
+              z.operationDefinition(
                 'query',
-                J.selectionSet([
-                  J.field(
-                    J.name(a.name),
-                    J.name('items'),
+                z.selectionSet([
+                  z.field(
+                    z.name(a.name),
+                    z.name('items'),
                     p,
                     null,
-                    J.selectionSet(y)
+                    z.selectionSet(y)
                   ),
-                  J.field(
-                    J.name(a.name + '_aggregate'),
-                    J.name('total'),
+                  z.field(
+                    z.name(a.name + '_aggregate'),
+                    z.name('total'),
                     d,
                     null,
-                    J.selectionSet([
-                      J.field(
-                        J.name('aggregate'),
+                    z.selectionSet([
+                      z.field(
+                        z.name('aggregate'),
                         null,
                         null,
                         null,
-                        J.selectionSet([J.field(J.name('count'))])
+                        z.selectionSet([z.field(z.name('count'))])
                       ),
                     ])
                   ),
                 ]),
-                J.name(a.name),
+                z.name(a.name),
                 f
               ),
             ])
@@ -21352,48 +21366,48 @@ PERFORMANCE OF THIS SOFTWARE.
             'UPDATE_MANY' === o ||
             'DELETE' === o ||
             'DELETE_MANY' === o
-          ? J.document([
-              J.operationDefinition(
+          ? z.document([
+              z.operationDefinition(
                 'mutation',
-                J.selectionSet([
-                  J.field(
-                    J.name(a.name),
-                    J.name('data'),
+                z.selectionSet([
+                  z.field(
+                    z.name(a.name),
+                    z.name('data'),
                     p,
                     null,
-                    J.selectionSet([
-                      J.field(
-                        J.name('returning'),
+                    z.selectionSet([
+                      z.field(
+                        z.name('returning'),
                         null,
                         null,
                         null,
-                        J.selectionSet(y)
+                        z.selectionSet(y)
                       ),
                     ])
                   ),
                 ]),
-                J.name(a.name),
+                z.name(a.name),
                 f
               ),
             ])
-          : J.document([
-              J.operationDefinition(
+          : z.document([
+              z.operationDefinition(
                 'query',
-                J.selectionSet([
-                  J.field(
-                    J.name(a.name),
-                    J.name('returning'),
+                z.selectionSet([
+                  z.field(
+                    z.name(a.name),
+                    z.name('returning'),
                     p,
                     null,
-                    J.selectionSet(y)
+                    z.selectionSet(y)
                   ),
                 ]),
-                J.name(a.name),
+                z.name(a.name),
                 f
               ),
             ]);
       };
-    const oe = (e, t, n) => (r) => {
+    const ae = (e, t, n) => (r) => {
       const i = r.resources.map((e) => e.type.name);
       return (o, a, u) => {
         const s = r.resources.find((e) => e.type.name === a);
@@ -21420,8 +21434,8 @@ PERFORMANCE OF THIS SOFTWARE.
         };
       };
     };
-    var ae = oe(B, (e) => ie(e, Z, ne, te, re), $);
-    const ue = {
+    var ue = ae(Y, (e) => oe(e, ee, re, ne, ie), J);
+    const se = {
         introspection: {
           operationNames: {
             GET_LIST: (e) => '' + e.name,
@@ -21436,18 +21450,18 @@ PERFORMANCE OF THIS SOFTWARE.
           },
         },
       },
-      se = {
-        buildFields: Z,
-        buildMetaArgs: ne,
-        buildArgs: te,
-        buildApolloArgs: re,
+      ce = {
+        buildFields: ee,
+        buildMetaArgs: re,
+        buildArgs: ne,
+        buildApolloArgs: ie,
       };
-    t.default = (e, t = {}, n = B, r = $) => {
-      const i = { ...se, ...t },
-        o = oe(
+    t.default = (e, t = {}, n = Y, r = J) => {
+      const i = { ...ce, ...t },
+        o = ae(
           n,
           (e) =>
-            ie(
+            oe(
               e,
               i.buildFields,
               i.buildMetaArgs,
@@ -21456,7 +21470,7 @@ PERFORMANCE OF THIS SOFTWARE.
             ),
           r
         );
-      return L(a()({}, ue, { buildQuery: o }, e)).then((e) => (t, n, r) =>
+      return L(a()({}, se, { buildQuery: o }, e)).then((e) => (t, n, r) =>
         e(t, n, r)
       );
     };
