@@ -21168,23 +21168,15 @@ PERFORMANCE OF THIS SOFTWARE.
       G = (e) => (t, n, r, i) =>
         Object.keys(r.data).reduce((n, i) => {
           if (r.previousData && r.data[i] === r.previousData[i]) return n;
-          if (
-            (console.log(i, r.data[i]), t.type.fields.some((e) => e.name === i))
-          ) {
-            const o = e.types.find((e) => e.name === t.type.name);
-            console.log(o);
-            const a = o.fields.find((e) => e.name === i),
-              u =
-                a && a.type && 'date' === a.type.name && '' == r.data[i]
+          if (t.type.fields.some((e) => e.name === i)) {
+            const o = e.types
+                .find((e) => e.name === t.type.name)
+                .fields.find((e) => e.name === i),
+              a =
+                o && o.type && 'date' === o.type.name && '' == r.data[i]
                   ? null
                   : r.data[i];
-            return (
-              console.log(
-                'Saved the day?',
-                a && a.type && 'date' === a.type.name && '' == r.data[i]
-              ),
-              { ...n, [i]: u }
-            );
+            return { ...n, [i]: a };
           }
           return n;
         }, {}),
