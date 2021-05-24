@@ -152,13 +152,45 @@ const buildGetListVariables = (introspectionResults) => (
   return result;
 };
 
+/**
+ * Returns a reducer that converts the react-admin key-values to hasura-acceptable values
+ *
+ * Currently that means that dates should never be an empty string, but in the future that can be extended
+ * See https://github.com/marmelab/react-admin/pull/6199
+ *
+ */
+const typeAwareKeyValueReducer = (introspectionResults, resource, params) => (
+  acc,
+  key
+) => {
+  const type = introspectionResults.types.find(
+    (t) => t.name === resource.type.name
+  );
+  const field = type.fields.find((t) => t.name === key);
+  const value =
+    field && field.type && field.type.name === 'date' && params.data[key] === ''
+      ? null
+      : params.data[key];
+  return resource.type.fields.some((f) => f.name === key)
+    ? {
+        ...acc,
+        [key]: value,
+      }
+    : acc;
+};
+
 const buildUpdateVariables = (introspectionResults) => (
   resource,
   aorFetchType,
   params,
   queryType
-) =>
-  Object.keys(params.data).reduce((acc, key) => {
+) => {
+  const reducer = typeAwareKeyValueReducer(
+    introspectionResults,
+    resource,
+    params
+  );
+  return Object.keys(params.data).reduce((acc, key) => {
     // If hasura permissions do not allow a field to be updated like (id),
     // we are not allowed to put it inside the variables
     // RA passes the whole previous Object here
@@ -169,31 +201,22 @@ const buildUpdateVariables = (introspectionResults) => (
     if (params.previousData && params.data[key] === params.previousData[key]) {
       return acc;
     }
-
-    if (resource.type.fields.some((f) => f.name === key)) {
-      const type = introspectionResults.types.find(
-        (t) => t.name === resource.type.name
-      );
-      // Fix for Bug introduced here: https://github.com/marmelab/react-admin/pull/6199
-      const field = type.fields.find((t) => t.name === key);
-      const value =
-        field &&
-        field.type &&
-        field.type.name === 'date' &&
-        params.data[key] == ''
-          ? null
-          : params.data[key];
-      return {
-        ...acc,
-        [key]: value,
-      };
-    }
-
-    return acc;
+    return reducer(acc, key);
   }, {});
+};
 
-const buildCreateVariables = (resource, aorFetchType, params, queryType) => {
-  return params.data;
+const buildCreateVariables = (introspectionResults) => (
+  resource,
+  aorFetchType,
+  params,
+  queryType
+) => {
+  const reducer = typeAwareKeyValueReducer(
+    introspectionResults,
+    resource,
+    params
+  );
+  return Object.keys(params.data).reduce(reducer, {});
 };
 
 const makeNestedTarget = (target, id) =>
@@ -265,7 +288,7 @@ export default (introspectionResults) => (
       };
     case CREATE:
       return {
-        objects: buildCreateVariables(
+        objects: buildCreateVariables(introspectionResults)(
           resource,
           aorFetchType,
           params,
