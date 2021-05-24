@@ -21056,24 +21056,28 @@ PERFORMANCE OF THIS SOFTWARE.
                 return (
                   (b = u(m, v)),
                   ((T = function (e, t, n) {
-                    var r = s()(l, t + '.' + e),
-                      i = r ? S(S({}, b(e, t, n)), r(n)) : b(e, t, n),
-                      o = i.parseResponse,
-                      a = D(i, ['parseResponse']);
-                    if ('query' === x(a.query)) {
-                      var u = S(
-                        S(S({}, a), { fetchPolicy: 'network-only' }),
-                        k(v.query, e, t)
+                    var r = s()(l, t + '.' + e);
+                    try {
+                      var i = r ? S(S({}, b(e, t, n)), r(n)) : b(e, t, n),
+                        o = i.parseResponse,
+                        a = D(i, ['parseResponse']);
+                      if ('query' === x(a.query)) {
+                        var u = S(
+                          S(S({}, a), { fetchPolicy: 'network-only' }),
+                          k(v.query, e, t)
+                        );
+                        return h.query(u).then(function (e) {
+                          return o(e);
+                        });
+                      }
+                      var c = S(
+                        { mutation: a.query, variables: a.variables },
+                        k(v.mutation, e, t)
                       );
-                      return h.query(u).then(function (e) {
-                        return o(e);
-                      });
+                      return h.mutate(c).then(o);
+                    } catch (e) {
+                      return Promise.reject(e);
                     }
-                    var c = S(
-                      { mutation: a.query, variables: a.variables },
-                      k(v.mutation, e, t)
-                    );
-                    return h.mutate(c).then(o);
                   }).observeRequest = function (e, t, n) {
                     var r = b(e, t, n),
                       i = r.parseResponse,
@@ -21161,44 +21165,57 @@ PERFORMANCE OF THIS SOFTWARE.
           r
         );
       },
-      G = (e, t, n, r) =>
-        Object.keys(n.data).reduce(
-          (t, r) =>
-            n.previousData && n.data[r] === n.previousData[r]
-              ? t
-              : e.type.fields.some((e) => e.name === r)
-              ? { ...t, [r]: n.data[r] }
-              : t,
-          {}
-        ),
+      G = (e) => (t, n, r, i) =>
+        Object.keys(r.data).reduce((n, i) => {
+          if (r.previousData && r.data[i] === r.previousData[i]) return n;
+          if (
+            (console.log(i, r.data[i]), t.type.fields.some((e) => e.name === i))
+          ) {
+            const o = e.types.find((e) => e.name === t.type.name);
+            console.log(o);
+            const a = o.fields.find((e) => e.name === i),
+              u =
+                a && a.type && 'date' === a.type.name && '' == r.data[i]
+                  ? null
+                  : r.data[i];
+            return (
+              console.log(
+                'Saved the day?',
+                a && a.type && 'date' === a.type.name && '' == r.data[i]
+              ),
+              { ...n, [i]: u }
+            );
+          }
+          return n;
+        }, {}),
       U = (e, t, n, r) => n.data,
       q = (e, t) =>
         e
           .split('.')
           .reverse()
           .reduce((e, t) => ({ [t]: e }), { _eq: t });
-    var B = (e) => (e, t, n, r) => {
-      switch (t) {
+    var B = (e) => (t, n, r, i) => {
+      switch (n) {
         case 'GET_LIST':
-          return K()(e, t, n, r);
+          return K()(t, n, r, i);
         case 'GET_MANY_REFERENCE':
-          var i = K()(e, t, n, r);
-          return n.filter
-            ? { ...i, where: { _and: [...i.where._and, q(n.target, n.id)] } }
-            : { ...i, where: q(n.target, n.id) };
+          var o = K()(t, n, r, i);
+          return r.filter
+            ? { ...o, where: { _and: [...o.where._and, q(r.target, r.id)] } }
+            : { ...o, where: q(r.target, r.id) };
         case 'GET_MANY':
         case 'DELETE_MANY':
-          return { where: { id: { _in: n.ids } } };
+          return { where: { id: { _in: r.ids } } };
         case 'GET_ONE':
-          return { where: { id: { _eq: n.id } }, limit: 1 };
+          return { where: { id: { _eq: r.id } }, limit: 1 };
         case 'DELETE':
-          return { where: { id: { _eq: n.id } } };
+          return { where: { id: { _eq: r.id } } };
         case 'CREATE':
-          return { objects: U(0, 0, n) };
+          return { objects: U(0, 0, r) };
         case 'UPDATE':
-          return { _set: G(e, 0, n), where: { id: { _eq: n.id } } };
+          return { _set: G(e)(t, n, r, i), where: { id: { _eq: r.id } } };
         case 'UPDATE_MANY':
-          return { _set: G(e, 0, n), where: { id: { _in: n.ids } } };
+          return { _set: G(e)(t, n, r, i), where: { id: { _in: r.ids } } };
       }
     };
     const Y = (e = {}) =>
