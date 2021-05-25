@@ -32,7 +32,7 @@ export {
   defaultGetResponseParser,
 };
 import buildQuery from './buildQuery';
-import buildVariables from './buildVariables'
+import buildVariables from './buildVariables';
 
 export { buildQuery, buildGqlQuery, buildVariables };
 
@@ -57,6 +57,7 @@ const buildGqlQueryDefaults = {
   buildMetaArgs,
   buildArgs,
   buildApolloArgs,
+  aggregateFieldName: (resourceName) => `${resourceName}_aggregate`,
 };
 
 const buildCustomDataProvider = (
@@ -76,7 +77,8 @@ const buildCustomDataProvider = (
       buildGqlQueryOptions.buildFields,
       buildGqlQueryOptions.buildMetaArgs,
       buildGqlQueryOptions.buildArgs,
-      buildGqlQueryOptions.buildApolloArgs
+      buildGqlQueryOptions.buildApolloArgs,
+      buildGqlQueryOptions.aggregateFieldName
     );
 
   const buildQuery = buildQueryFactory(
