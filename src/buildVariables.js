@@ -128,6 +128,7 @@ const buildGetListVariables = (introspectionResults) => (
   const orFilters = Object.keys(orFilterObj)
     .reduce(filterReducer(orFilterObj), [])
     .filter(Boolean);
+
   result['where'] = {
     _and: andFilters,
     ...(orFilters.length && { _or: orFilters }),

@@ -58,7 +58,7 @@ See the [Options](#options) and [Customizing queries](#customizing-queries) sect
 This function acts as a constructor for a `dataProvider` based on a Hasura GraphQL endpoint. When executed, this function calls the endpoint, running an [introspection](http://graphql.org/learn/introspection/) query to learn about the specific data models exposed by your Hasura endpoint. It uses the result of this query (the GraphQL schema) to automatically configure the `dataProvider` accordingly.
 
 ```jsx
-// Initialise the dataProvider before rendering react-admin resources.
+// Initialize the dataProvider before rendering react-admin resources.
 import React, { useState, useEffect } from 'react';
 import buildHasuraProvider from 'ra-data-hasura';
 import { Admin, Resource } from 'react-admin';
@@ -70,9 +70,9 @@ const App = () => {
 
   useEffect(() => {
     const buildDataProvider = async () => {
-      const dataProvider = await buildHasuraProvider(
-        (clientOptions: { uri: 'http://localhost:8080/v1/graphql' })
-      );
+      const dataProvider = await buildHasuraProvider({
+        clientOptions: { uri: 'http://localhost:8080/v1/graphql' })
+      });
       setDataProvider(() => dataProvider);
     };
     buildDataProvider();
@@ -189,21 +189,52 @@ buildGraphQLProvider({ client: myClient });
 
 ### Adding Authentication Headers
 
-To send authentication headers, you can use either approach above, but easiest is to supply the client instance directly with headers defined:
+To send authentication headers, you'll need to supply the client instance directly with headers defined:
 
 ```js
-import { ApolloClient } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 
-const myClient = new ApolloClient({
+const myClientWithAuth = new ApolloClient({
   uri: 'http://localhost:8080/v1/graphql',
+  cache: new InMemoryCache(),
   headers: {
-    'x-hasura-admin-secret': 'myadminsecretkey',
+    'x-hasura-admin-secret': 'hasuraAdminSecret',
     // 'Authorization': `Bearer xxxx`,
   },
 });
 
-buildHasuraProvider({ client: myClient });
+buildHasuraProvider({ client: myClientWithAuth });
 ```
+
+<details style="margin-bottom: 20px">
+
+<summary style="margin-bottom: 10px">Adding headers using just client options</summary>
+
+  You can also add headers using only client options rather than the client itself:
+    
+  ```js
+  import { createHttpLink } from '@apollo/client';
+  import { setContext } from '@apollo/client/link/context';
+
+  const authLink = setContext((_, { headers }) => ({
+    headers: {
+      ...headers,
+      'x-hasura-admin-secret': 'hasuraAdminSecret',
+      // 'Authorization': `Bearer xxxx`,
+    },
+  }));
+
+  const httpLink = createHttpLink({
+    uri: "http://localhost:8080/v1/graphql",
+  });
+
+  const clientOptionsWithAuth = {
+    link: authLink.concat(httpLink),
+  };
+
+  buildHasuraProvider({ client: clientOptionsWithAuth });
+  ```
+</details>
 
 ### Customize the introspection
 
