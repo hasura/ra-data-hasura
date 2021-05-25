@@ -2,16 +2,22 @@
 
 A GraphQL data provider for [react-admin](https://marmelab.com/react-admin) tailored to target [Hasura](https://hasura.io/) GraphQL endpoints.
 
-- [Installation](#installation)
-- [Usage](#installation)
-- [How It Works](#how-it-works)
-- [Options](#options)
-  - [Apollo Client](#customize-the-apollo-client)
-  - [Authentication](#adding-authentication-headers)
-  - [Introspection](#customize-the-introspection)
-- [Customizing queries](#customizing-queries)
-  - [Extending queries to related entities](#example-extending-a-query-to-include-related-entities)
-  - [Fully custom queries](#example-write-a-completely-custom-query)
+- [ra-data-hasura](#ra-data-hasura)
+  - [Benefits and Motivation](#benefits-and-motivation)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [How It Works](#how-it-works)
+  - [Options](#options)
+    - [Customize the Apollo client](#customize-the-apollo-client)
+    - [Adding Authentication Headers](#adding-authentication-headers)
+    - [Customize the introspection](#customize-the-introspection)
+  - [Customizing queries](#customizing-queries)
+    - [Example: extending a query to include related entities](#example-extending-a-query-to-include-related-entities)
+    - [Example: write a completely custom query](#example-write-a-completely-custom-query)
+  - [Special Filter Feature](#special-filter-feature)
+    - [Nested filtering](#nested-filtering)
+  - [Contributing](#contributing)
+  - [Credits](#credits)
 
 Example applications demonstrating usage:
 
@@ -441,6 +447,56 @@ It will generate the following filter payload
 The adapter assigns default comparator depends on the data type if it is not provided.
 For string data types, it assumes as text search and uses `ilike` otherwise it uses `eq`.
 For string data types that uses `like` or `ilike` it automatically transform the filter `value` as `%value%`.
+
+### Nested filtering
+
+Nested filtering is supported using # as a field separator.
+
+```tsx
+<TextInput
+  label="Search by indication, drug, sponsor, nctid"
+  source="indication#name@_ilike,drug#preferred_name@_ilike,sponsor#name@_ilike,trial#nctid@_ilike"
+  alwaysOn
+/>
+```
+
+Will produce the following payload:
+
+```json
+{
+  "where": {
+    "_and": [],
+    "_or": [
+      {
+        "indication": {
+          "name": {
+            "_ilike": "%TEXT%"
+          }
+        }
+      },
+      {
+        "drug": {
+          "name": {
+            "_ilike": "%TEXT%"
+          }
+        }
+      },
+      {
+        "sponsor": {
+          "name": {
+            "_ilike": "%TEXT%"
+          }
+        }
+      }
+    ]
+  },
+  "limit": 10,
+  "offset": 0,
+  "order_by": {
+    "id": "asc"
+  }
+}
+```
 
 ## Contributing
 

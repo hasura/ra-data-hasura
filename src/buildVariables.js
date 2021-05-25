@@ -12,6 +12,8 @@ import {
   DELETE_MANY,
 } from './fetchActions';
 
+const SPLIT_TOKEN = '#';
+
 import getFinalType from './getFinalType';
 
 const buildGetListVariables = (introspectionResults) => (
@@ -24,6 +26,14 @@ const buildGetListVariables = (introspectionResults) => (
   const { customFilters = [] } = params;
 
   /**
+   * Nested entities are parsed by CRA, which returns a nested object
+   * { 'level1': {'level2': 'test'}}
+   * instead of { 'level1.level2': 'test'}
+   * That's why we use a HASH for properties, when we declared nested stuff at CRA:
+   * level1#level2@_ilike
+   */
+
+  /**
          keys with comma separated values
         {
             'title@ilike,body@like,authors@similar': 'test',
@@ -31,6 +41,7 @@ const buildGetListVariables = (introspectionResults) => (
         }
      */
   const orFilterKeys = Object.keys(filterObj).filter((e) => e.includes(','));
+
   /**
         format filters
         {
@@ -54,6 +65,16 @@ const buildGetListVariables = (introspectionResults) => (
     };
   }, {});
   filterObj = omit(filterObj, orFilterKeys);
+
+  const makeNestedFilter = (obj, operation) => {
+    if (Object.keys(obj).length === 1) {
+      const [key] = Object.keys(obj);
+      return { [key]: makeNestedFilter(obj[key], operation) };
+    } else {
+      return { [operation]: obj };
+    }
+  };
+
   const filterReducer = (obj) => (acc, key) => {
     let filter;
     if (key === 'ids') {
@@ -64,22 +85,39 @@ const buildGetListVariables = (introspectionResults) => (
       filter = { [key]: obj[key].value || {} };
     } else {
       let [keyName, operation = ''] = key.split('@');
+      let operator;
       const field = resource.type.fields.find((f) => f.name === keyName);
       if (field) {
         switch (getFinalType(field.type).name) {
           case 'String':
             operation = operation || '_ilike';
-            filter = {
-              [keyName]: {
-                [operation]: operation.includes('like')
-                  ? `%${obj[key]}%`
-                  : obj[key],
-              },
+            operator = {
+              [operation]: operation.includes('like')
+                ? `%${obj[key]}%`
+                : obj[key],
             };
+            filter = set({}, keyName.split(SPLIT_TOKEN), operator);
             break;
           default:
-            filter = { [keyName]: { [operation || '_eq']: obj[key] } };
+            operator = {
+              [operation]: operation.includes('like')
+                ? `%${obj[key]}%`
+                : obj[key],
+            };
+            filter = set({}, keyName.split(SPLIT_TOKEN), {
+              [operation || '_eq']: obj[key],
+            });
         }
+      } else {
+        // Else block runs when the field is not found in Graphql schema.
+        // Most likely it's nested. If it's not, it's better to let
+        // Hasura fail with a message than silently fail/ignore it
+        operator = {
+          [operation || '_eq']: operation.includes('like')
+            ? `%${obj[key]}%`
+            : obj[key],
+        };
+        filter = set({}, keyName.split(SPLIT_TOKEN), operator);
       }
     }
     return [...acc, filter];
@@ -182,6 +220,20 @@ const buildCreateVariables = (introspectionResults) => (
   return Object.keys(params.data).reduce(reducer, {});
 };
 
+const makeNestedTarget = (target, id) =>
+  // This simple example should make clear what this function does
+  // makeNestedTarget("a.b", 42)
+  // => { a: { b: { _eq: 42 } } }
+  target
+    .split('.')
+    .reverse()
+    .reduce(
+      (acc, key) => ({
+        [key]: acc,
+      }),
+      { _eq: id }
+    );
+
 export default (introspectionResults) => (
   resource,
   aorFetchType,
@@ -209,16 +261,14 @@ export default (introspectionResults) => (
           where: {
             _and: [
               ...built['where']['_and'],
-              { [params.target]: { _eq: params.id } },
+              makeNestedTarget(params.target, params.id),
             ],
           },
         };
       }
       return {
         ...built,
-        where: {
-          [params.target]: { _eq: params.id },
-        },
+        where: makeNestedTarget(params.target, params.id),
       };
     }
     case GET_MANY:
