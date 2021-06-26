@@ -191,6 +191,13 @@ const buildUpdateVariables = (introspectionResults) => (
     resource,
     params
   );
+    let permitted_fields = null;
+    const resource_name = resource.type.name;
+    if (resource_name) {
+      permitted_fields = introspectionResults.types
+        .find((obj) => obj.name === `${resource_name}_set_input`)
+        ?.inputFields?.map((obj) => obj.name);
+    }
   return Object.keys(params.data).reduce((acc, key) => {
     // If hasura permissions do not allow a field to be updated like (id),
     // we are not allowed to put it inside the variables
@@ -199,6 +206,9 @@ const buildUpdateVariables = (introspectionResults) => (
 
     // TODO: To overcome this permission issue,
     // it would be better to allow only permitted inputFields from *_set_input INPUT_OBJECT
+    // @^
+    if (permitted_fields && !permitted_fields.includes(key)) return acc;
+
     if (params.previousData && params.data[key] === params.previousData[key]) {
       return acc;
     }
