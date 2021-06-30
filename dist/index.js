@@ -21174,9 +21174,21 @@ PERFORMANCE OF THIS SOFTWARE.
       },
       U = (e) => (t, n, r, i) => {
         const o = G(e, t, r);
+        let a = null;
+        const u = t.type.name;
+        if (u) {
+          let t = e.types.find((e) => e.name === u + '_set_input');
+          if (t) {
+            let e = t.inputFields;
+            e && (a = e.map((e) => e.name));
+          }
+        }
         return Object.keys(r.data).reduce(
           (e, t) =>
-            r.previousData && r.data[t] === r.previousData[t] ? e : o(e, t),
+            (a && !a.includes(t)) ||
+            (r.previousData && r.data[t] === r.previousData[t])
+              ? e
+              : o(e, t),
           {}
         );
       },
@@ -21321,30 +21333,30 @@ PERFORMANCE OF THIS SOFTWARE.
             []
           );
       },
-      oe = (e, t, n, r, i) => (e, o, a, u) => {
-        const { sortField: s, sortOrder: c, ...l } = u,
-          f = i(a, u),
-          p = r(a, u),
-          d = n(a, l, o),
-          y = t(e.type, o);
-        return 'GET_LIST' === o ||
-          'GET_MANY' === o ||
-          'GET_MANY_REFERENCE' === o
+      oe = (e, t, n, r, i, o) => (e, a, u, s) => {
+        const { sortField: c, sortOrder: l, ...f } = s,
+          p = i(u, s),
+          d = r(u, s),
+          y = n(u, f, a),
+          v = t(e.type, a);
+        return 'GET_LIST' === a ||
+          'GET_MANY' === a ||
+          'GET_MANY_REFERENCE' === a
           ? z.document([
               z.operationDefinition(
                 'query',
                 z.selectionSet([
                   z.field(
-                    z.name(a.name),
+                    z.name(u.name),
                     z.name('items'),
-                    p,
+                    d,
                     null,
-                    z.selectionSet(y)
+                    z.selectionSet(v)
                   ),
                   z.field(
-                    z.name(a.name + '_aggregate'),
+                    z.name(o(u.name)),
                     z.name('total'),
-                    d,
+                    y,
                     null,
                     z.selectionSet([
                       z.field(
@@ -21357,23 +21369,23 @@ PERFORMANCE OF THIS SOFTWARE.
                     ])
                   ),
                 ]),
-                z.name(a.name),
-                f
+                z.name(u.name),
+                p
               ),
             ])
-          : 'CREATE' === o ||
-            'UPDATE' === o ||
-            'UPDATE_MANY' === o ||
-            'DELETE' === o ||
-            'DELETE_MANY' === o
+          : 'CREATE' === a ||
+            'UPDATE' === a ||
+            'UPDATE_MANY' === a ||
+            'DELETE' === a ||
+            'DELETE_MANY' === a
           ? z.document([
               z.operationDefinition(
                 'mutation',
                 z.selectionSet([
                   z.field(
-                    z.name(a.name),
+                    z.name(u.name),
                     z.name('data'),
-                    p,
+                    d,
                     null,
                     z.selectionSet([
                       z.field(
@@ -21381,13 +21393,13 @@ PERFORMANCE OF THIS SOFTWARE.
                         null,
                         null,
                         null,
-                        z.selectionSet(y)
+                        z.selectionSet(v)
                       ),
                     ])
                   ),
                 ]),
-                z.name(a.name),
-                f
+                z.name(u.name),
+                p
               ),
             ])
           : z.document([
@@ -21395,15 +21407,15 @@ PERFORMANCE OF THIS SOFTWARE.
                 'query',
                 z.selectionSet([
                   z.field(
-                    z.name(a.name),
+                    z.name(u.name),
                     z.name('returning'),
-                    p,
+                    d,
                     null,
-                    z.selectionSet(y)
+                    z.selectionSet(v)
                   ),
                 ]),
-                z.name(a.name),
-                f
+                z.name(u.name),
+                p
               ),
             ]);
       };
@@ -21455,6 +21467,7 @@ PERFORMANCE OF THIS SOFTWARE.
         buildMetaArgs: re,
         buildArgs: ne,
         buildApolloArgs: ie,
+        aggregateFieldName: (e) => e + '_aggregate',
       };
     t.default = (e, t = {}, n = Y, r = J) => {
       const i = { ...ce, ...t },
@@ -21466,7 +21479,8 @@ PERFORMANCE OF THIS SOFTWARE.
               i.buildFields,
               i.buildMetaArgs,
               i.buildArgs,
-              i.buildApolloArgs
+              i.buildApolloArgs,
+              i.aggregateFieldName
             ),
           r
         );

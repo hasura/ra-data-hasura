@@ -1,3 +1,13 @@
+## 0.2.0 (June 30, 2021)
+
+- Feature: Update only permitted fields.
+- Feature: Add option for custom aggregate field names.
+- Feature: Reference a nested object in a reference field.
+- Bug Fix: Issue in sanitizing a null value in an array.
+- Feature: Add support for nested field filtering
+- Bug Fix: Fix issue with null / dates
+- Bug Fix: Fix error with react-admin 1.13.0 for date inputs
+
 ## 0.1.0 (January 19, 2021)
 
 - **Breaking change**: This release is a complete rewrite of the library, replacing the API with code from `ra-data-hasura-graphql` library. The `steams/ra-data-hasura-graphql` will henceforth be archived. Refer `README.md` for usage instructions.
