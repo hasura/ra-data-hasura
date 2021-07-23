@@ -16,6 +16,7 @@ A GraphQL data provider for [react-admin](https://marmelab.com/react-admin) tail
     - [Example: write a completely custom query](#example-write-a-completely-custom-query)
   - [Special Filter Feature](#special-filter-feature)
     - [Nested filtering](#nested-filtering)
+  - [Sorting lists by multiple columns](#sorting-lists-by-multiple-columns)
   - [Contributing](#contributing)
   - [Credits](#credits)
 
@@ -71,7 +72,7 @@ const App = () => {
   useEffect(() => {
     const buildDataProvider = async () => {
       const dataProvider = await buildHasuraProvider({
-        clientOptions: { uri: 'http://localhost:8080/v1/graphql' }
+        clientOptions: { uri: 'http://localhost:8080/v1/graphql' },
       });
       setDataProvider(() => dataProvider);
     };
@@ -210,30 +211,31 @@ buildHasuraProvider({ client: myClientWithAuth });
 
 <summary style="margin-bottom: 10px">Adding headers using just client options</summary>
 
-  You can also add headers using only client options rather than the client itself:
-    
-  ```js
-  import { createHttpLink } from '@apollo/client';
-  import { setContext } from '@apollo/client/link/context';
+You can also add headers using only client options rather than the client itself:
 
-  const authLink = setContext((_, { headers }) => ({
-    headers: {
-      ...headers,
-      'x-hasura-admin-secret': 'hasuraAdminSecret',
-      // 'Authorization': `Bearer xxxx`,
-    },
-  }));
+```js
+import { createHttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 
-  const httpLink = createHttpLink({
-    uri: "http://localhost:8080/v1/graphql",
-  });
+const authLink = setContext((_, { headers }) => ({
+  headers: {
+    ...headers,
+    'x-hasura-admin-secret': 'hasuraAdminSecret',
+    // 'Authorization': `Bearer xxxx`,
+  },
+}));
 
-  const clientOptionsWithAuth = {
-    link: authLink.concat(httpLink),
-  };
+const httpLink = createHttpLink({
+  uri: 'http://localhost:8080/v1/graphql',
+});
 
-  buildHasuraProvider({ client: clientOptionsWithAuth });
-  ```
+const clientOptionsWithAuth = {
+  link: authLink.concat(httpLink),
+};
+
+buildHasuraProvider({ client: clientOptionsWithAuth });
+```
+
 </details>
 
 ### Customize the introspection
@@ -496,6 +498,26 @@ Will produce the following payload:
     "id": "asc"
   }
 }
+```
+
+## Sorting lists by multiple columns
+
+Hasura support [sorting by multiple fields](https://hasura.io/docs/latest/graphql/core/databases/postgres/queries/sorting.html#sorting-by-multiple-fields) but React Admin itself doesn't allow the `List` component to receive an array as the `sort` prop. So to achieve sorting by multiple fields, separate the field and order values using a comma.
+
+For example, a list like
+
+```jsx
+const TodoList = (props) => (
+  <List sort={{ field: 'title,is_completed', order: 'asc,desc' }} {...props}>
+    <Datagrid rowClick="edit">...</Datagrid>
+  </List>
+);
+```
+
+will generate a query with an `order_by` variable like
+
+```
+order_by: [{ title: "asc" }, { is_completed: "desc" }]
 ```
 
 ## Contributing
