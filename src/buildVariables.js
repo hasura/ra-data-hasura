@@ -13,6 +13,7 @@ import {
 } from './fetchActions';
 
 const SPLIT_TOKEN = '#';
+const MULTI_SORT_TOKEN = ',';
 
 import getFinalType from './getFinalType';
 
@@ -143,11 +144,32 @@ const buildGetListVariables = (introspectionResults) => (
   }
 
   if (params.sort) {
-    result['order_by'] = set(
-      {},
-      params.sort.field,
-      params.sort.order.toLowerCase()
-    );
+    const { field, order } = params.sort;
+    const hasMultiSort =
+      field.includes(MULTI_SORT_TOKEN) || order.includes(MULTI_SORT_TOKEN);
+    if (hasMultiSort) {
+      const fields = field.split(MULTI_SORT_TOKEN);
+      const orders = order
+        .split(MULTI_SORT_TOKEN)
+        .map((order) => order.toLowerCase());
+
+      if (fields.length !== orders.length) {
+        throw new Error(
+          `The ${
+            resource.type.name
+          } list must have an order value for each sort field. Sort fields are "${fields.join(
+            ','
+          )}" but sort orders are "${orders.join(',')}"`
+        );
+      }
+
+      const multiSort = fields.map((field, index) => ({
+        [field]: orders[index],
+      }));
+      result['order_by'] = multiSort;
+    } else {
+      result['order_by'] = set({}, field, order.toLowerCase());
+    }
   }
 
   return result;
@@ -191,27 +213,27 @@ const buildUpdateVariables = (introspectionResults) => (
     resource,
     params
   );
-    let permitted_fields = null;
-    const resource_name = resource.type.name;
-    if (resource_name) {
-      let inputType = introspectionResults.types.find(
-        (obj) => obj.name === `${resource_name}_set_input`
-      );
-      if (inputType) {
-        let inputTypeFields = inputType.inputFields;
-        if (inputTypeFields) {
-          permitted_fields = inputTypeFields.map((obj) => obj.name);
-        }
+  let permitted_fields = null;
+  const resource_name = resource.type.name;
+  if (resource_name) {
+    let inputType = introspectionResults.types.find(
+      (obj) => obj.name === `${resource_name}_set_input`
+    );
+    if (inputType) {
+      let inputTypeFields = inputType.inputFields;
+      if (inputTypeFields) {
+        permitted_fields = inputTypeFields.map((obj) => obj.name);
       }
     }
+  }
   return Object.keys(params.data).reduce((acc, key) => {
     // If hasura permissions do not allow a field to be updated like (id),
     // we are not allowed to put it inside the variables
     // RA passes the whole previous Object here
     // https://github.com/marmelab/react-admin/issues/2414#issuecomment-428945402
 
-    // Fetch permitted fields from *_set_input INPUT_OBJECT and filter out any key 
-    // not present inside it    
+    // Fetch permitted fields from *_set_input INPUT_OBJECT and filter out any key
+    // not present inside it
     if (permitted_fields && !permitted_fields.includes(key)) return acc;
 
     if (params.previousData && params.data[key] === params.previousData[key]) {
