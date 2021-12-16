@@ -80,7 +80,7 @@ const buildGetListVariables = (introspectionResults) => (
     if (key === 'ids') {
       filter = { id: { _in: obj['ids'] } };
     } else if (Array.isArray(obj[key])) {
-      filter = { [key]: { _in: obj[key] } };
+      filter = set({}, key.split(SPLIT_TOKEN), { _in: obj[key] });
     } else if (obj[key] && obj[key].format === 'hasura-raw-query') {
       filter = { [key]: obj[key].value || {} };
     } else {
