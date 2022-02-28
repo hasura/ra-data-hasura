@@ -71,7 +71,7 @@ const App = () => {
   useEffect(() => {
     const buildDataProvider = async () => {
       const dataProvider = await buildHasuraProvider({
-        clientOptions: { uri: 'http://localhost:8080/v1/graphql' }
+        clientOptions: { uri: 'http://localhost:8080/v1/graphql' },
       });
       setDataProvider(() => dataProvider);
     };
@@ -210,30 +210,31 @@ buildHasuraProvider({ client: myClientWithAuth });
 
 <summary style="margin-bottom: 10px">Adding headers using just client options</summary>
 
-  You can also add headers using only client options rather than the client itself:
-    
-  ```js
-  import { createHttpLink } from '@apollo/client';
-  import { setContext } from '@apollo/client/link/context';
+You can also add headers using only client options rather than the client itself:
 
-  const authLink = setContext((_, { headers }) => ({
-    headers: {
-      ...headers,
-      'x-hasura-admin-secret': 'hasuraAdminSecret',
-      // 'Authorization': `Bearer xxxx`,
-    },
-  }));
+```js
+import { createHttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 
-  const httpLink = createHttpLink({
-    uri: "http://localhost:8080/v1/graphql",
-  });
+const authLink = setContext((_, { headers }) => ({
+  headers: {
+    ...headers,
+    'x-hasura-admin-secret': 'hasuraAdminSecret',
+    // 'Authorization': `Bearer xxxx`,
+  },
+}));
 
-  const clientOptionsWithAuth = {
-    link: authLink.concat(httpLink),
-  };
+const httpLink = createHttpLink({
+  uri: 'http://localhost:8080/v1/graphql',
+});
 
-  buildHasuraProvider({ client: clientOptionsWithAuth });
-  ```
+const clientOptionsWithAuth = {
+  link: authLink.concat(httpLink),
+};
+
+buildHasuraProvider({ client: clientOptionsWithAuth });
+```
+
 </details>
 
 ### Customize the introspection
