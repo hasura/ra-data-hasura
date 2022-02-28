@@ -16,6 +16,7 @@ A GraphQL data provider for [react-admin](https://marmelab.com/react-admin) tail
     - [Example: write a completely custom query](#example-write-a-completely-custom-query)
   - [Special Filter Feature](#special-filter-feature)
     - [Nested filtering](#nested-filtering)
+  - [Sorting lists by multiple columns](#sorting-lists-by-multiple-columns)
   - [Contributing](#contributing)
   - [Credits](#credits)
 
@@ -497,6 +498,26 @@ Will produce the following payload:
     "id": "asc"
   }
 }
+```
+
+## Sorting lists by multiple columns
+
+Hasura support [sorting by multiple fields](https://hasura.io/docs/latest/graphql/core/databases/postgres/queries/sorting.html#sorting-by-multiple-fields) but React Admin itself doesn't allow the `List` component to receive an array as the `sort` prop. So to achieve sorting by multiple fields, separate the field and order values using a comma.
+
+For example, a list like
+
+```jsx
+const TodoList = (props) => (
+  <List sort={{ field: 'title,is_completed', order: 'asc,desc' }} {...props}>
+    <Datagrid rowClick="edit">...</Datagrid>
+  </List>
+);
+```
+
+will generate a query with an `order_by` variable like
+
+```
+order_by: [{ title: "asc" }, { is_completed: "desc" }]
 ```
 
 ## Contributing

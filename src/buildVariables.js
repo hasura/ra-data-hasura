@@ -14,6 +14,7 @@ import {
 } from './fetchActions';
 
 const SPLIT_TOKEN = '#';
+const MULTI_SORT_TOKEN = ',';
 
 import getFinalType from './getFinalType';
 
@@ -144,11 +145,32 @@ const buildGetListVariables = (introspectionResults) => (
   }
 
   if (params.sort) {
-    result['order_by'] = set(
-      {},
-      params.sort.field,
-      params.sort.order.toLowerCase()
-    );
+    const { field, order } = params.sort;
+    const hasMultiSort =
+      field.includes(MULTI_SORT_TOKEN) || order.includes(MULTI_SORT_TOKEN);
+    if (hasMultiSort) {
+      const fields = field.split(MULTI_SORT_TOKEN);
+      const orders = order
+        .split(MULTI_SORT_TOKEN)
+        .map((order) => order.toLowerCase());
+
+      if (fields.length !== orders.length) {
+        throw new Error(
+          `The ${
+            resource.type.name
+          } list must have an order value for each sort field. Sort fields are "${fields.join(
+            ','
+          )}" but sort orders are "${orders.join(',')}"`
+        );
+      }
+
+      const multiSort = fields.map((field, index) => ({
+        [field]: orders[index],
+      }));
+      result['order_by'] = multiSort;
+    } else {
+      result['order_by'] = set({}, field, order.toLowerCase());
+    }
   }
 
   return result;
