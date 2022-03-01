@@ -275,7 +275,7 @@ const makeNestedTarget = (target, id) =>
       { _eq: id }
     );
 
-export default (introspectionResults) => (
+export const buildVariables = (introspectionResults) => (
   resource,
   aorFetchType,
   params,

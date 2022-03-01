@@ -34,3 +34,5 @@ export type IntrospectionResult = {
   resources: IntrospectedResource[];
   schema: IntrospectionSchema;
 };
+
+export type GetFieldName = (name: string) => string;

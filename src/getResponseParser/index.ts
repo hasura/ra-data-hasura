@@ -13,7 +13,7 @@ import {
 import { IntrospectionResult, IntrospectedResource } from '../types';
 import { sanitizeResource } from './sanitizeResource';
 
-const getResponseParser = (_: IntrospectionResult) => (
+export const getResponseParser = (_: IntrospectionResult) => (
   aorFetchType: string,
   _?: IntrospectedResource
 ) => (res: ApolloCurrentQueryResult<any>) => {
@@ -46,5 +46,3 @@ const getResponseParser = (_: IntrospectionResult) => (
       throw Error(`Expected a proper fetchType, got: ${aorFetchType}`);
   }
 };
-
-export default getResponseParser;

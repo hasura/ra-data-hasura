@@ -1,5 +1,6 @@
 import merge from 'lodash/merge';
 import buildDataProvider from 'ra-data-graphql';
+
 import {
   GET_ONE,
   GET_LIST,
@@ -10,33 +11,29 @@ import {
   UPDATE,
   UPDATE_MANY,
   DELETE_MANY,
-} from './helpers/fetchActions';
+} from '../helpers/fetchActions';
 
-import defaultBuildVariables from './buildVariables';
-import defaultGetResponseParser from './getResponseParser';
+import { buildVariables as defaultBuildVariables } from '../buildVariables';
+import { getResponseParser as defaultGetResponseParser } from '../getResponseParser';
+import { buildGqlQuery } from '../buildGqlQuery';
 import {
-  buildGqlQuery,
-  buildFields,
   buildMetaArgs,
   buildArgs,
   buildApolloArgs,
-} from './buildGqlQuery';
-import { buildQueryFactory } from './buildQuery';
+} from '../buildGqlQuery/buildArgs';
+import { buildFields } from '../buildGqlQuery/buildFields';
 
-export {
-  buildFields,
-  buildMetaArgs,
-  buildArgs,
-  buildApolloArgs,
-  defaultBuildVariables,
-  defaultGetResponseParser,
-};
-import buildQuery from './buildQuery';
-import buildVariables from './buildVariables';
+import { buildQueryFactory } from '../buildQuery';
 
-export { buildQuery, buildGqlQuery, buildVariables };
+import type { FetchType, GetFieldName, IntrospectionResult } from '../types';
 
-const defaultOptions = {
+const defaultOptions: {
+  introspection: {
+    operationNames: {
+      [fetchType in FetchType]: (resource: any) => string;
+    };
+  };
+} = {
   introspection: {
     operationNames: {
       [GET_LIST]: (resource) => `${resource.name}`,
@@ -57,11 +54,11 @@ const buildGqlQueryDefaults = {
   buildMetaArgs,
   buildArgs,
   buildApolloArgs,
-  aggregateFieldName: (resourceName) => `${resourceName}_aggregate`,
+  aggregateFieldName: (resourceName: string) => `${resourceName}_aggregate`,
 };
 
-const buildCustomDataProvider = (
-  options,
+export const buildCustomDataProvider = (
+  options = {},
   buildGqlQueryOverrides = {},
   customBuildVariables = defaultBuildVariables,
   customGetResponseParser = defaultGetResponseParser
@@ -71,7 +68,7 @@ const buildCustomDataProvider = (
     ...buildGqlQueryOverrides,
   };
 
-  const customBuildGqlQuery = (introspectionResults) =>
+  const customBuildGqlQuery = (introspectionResults: IntrospectionResult) =>
     buildGqlQuery(
       introspectionResults,
       buildGqlQueryOptions.buildFields,
@@ -89,5 +86,3 @@ const buildCustomDataProvider = (
 
   return buildDataProvider(merge({}, defaultOptions, { buildQuery }, options));
 };
-
-export default buildCustomDataProvider;
