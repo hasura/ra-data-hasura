@@ -8,7 +8,7 @@ import {
   DELETE,
   UPDATE_MANY,
   DELETE_MANY,
-} from './fetchActions';
+} from './helpers/fetchActions';
 
 const sanitizeResource = (data = {}) => {
   const result = Object.keys(data).reduce((acc, key) => {

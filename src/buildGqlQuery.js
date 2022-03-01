@@ -7,14 +7,14 @@ import {
   UPDATE,
   UPDATE_MANY,
   DELETE_MANY,
-} from './fetchActions';
+} from './helpers/fetchActions';
 
 import { TypeKind } from 'graphql';
 import * as gqlTypes from 'graphql-ast-types-browser';
 
-import getFinalType from './getFinalType';
-import isList from './isList';
-import isRequired from './isRequired';
+import getFinalType from './helpers/getFinalType';
+import isList from './helpers/isList';
+import isRequired from './helpers/isRequired';
 
 export const buildFragments = (introspectionResults) => (possibleTypes) =>
   possibleTypes.reduce((acc, possibleType) => {

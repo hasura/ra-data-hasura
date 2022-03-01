@@ -21,7 +21,7 @@ export const fetchActionsWithArrayOfRecordsResponse = [
 ];
 export const fetchActionsWithTotalResponse = [GET_LIST, GET_MANY_REFERENCE];
 
-export const sanitizeFetchType = (fetchType) => {
+export const sanitizeFetchType = (fetchType: string) => {
   switch (fetchType) {
     case GET_LIST:
       return 'getList';

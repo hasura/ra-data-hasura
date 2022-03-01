@@ -10,7 +10,7 @@ import {
   UPDATE,
   UPDATE_MANY,
   DELETE_MANY,
-} from './fetchActions';
+} from './helpers/fetchActions';
 
 import defaultBuildVariables from './buildVariables';
 import defaultGetResponseParser from './getResponseParser';
@@ -87,9 +87,7 @@ const buildCustomDataProvider = (
     customGetResponseParser
   );
 
-  return buildDataProvider(
-    merge({}, defaultOptions, { buildQuery }, options)
-  );
+  return buildDataProvider(merge({}, defaultOptions, { buildQuery }, options));
 };
 
 export default buildCustomDataProvider;

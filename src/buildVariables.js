@@ -11,12 +11,12 @@ import {
   UPDATE,
   UPDATE_MANY,
   DELETE_MANY,
-} from './fetchActions';
+} from './helpers/fetchActions';
 
 const SPLIT_TOKEN = '#';
 const MULTI_SORT_TOKEN = ',';
 
-import getFinalType from './getFinalType';
+import getFinalType from './helpers/getFinalType';
 
 const buildGetListVariables = (introspectionResults) => (
   resource,
