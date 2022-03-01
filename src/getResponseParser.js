@@ -85,6 +85,6 @@ export default (introspectionResults) => (aorFetchType, resource) => (res) => {
       return { data: response.data.returning.map((x) => x.id) };
 
     default:
-      throw Error('Expected a propper fetchType, got: ', aorFetchType);
+      throw Error('Expected a proper fetchType, got: ', aorFetchType);
   }
 };
