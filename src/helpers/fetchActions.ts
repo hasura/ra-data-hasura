@@ -1,3 +1,5 @@
+import { FetchType } from '../types';
+
 export const GET_LIST = 'GET_LIST';
 export const GET_ONE = 'GET_ONE';
 export const GET_MANY = 'GET_MANY';
@@ -21,7 +23,7 @@ export const fetchActionsWithArrayOfRecordsResponse = [
 ];
 export const fetchActionsWithTotalResponse = [GET_LIST, GET_MANY_REFERENCE];
 
-export const sanitizeFetchType = (fetchType: string) => {
+export const sanitizeFetchType = (fetchType: FetchType) => {
   switch (fetchType) {
     case GET_LIST:
       return 'getList';
