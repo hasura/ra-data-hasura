@@ -1,3 +1,12 @@
+# Changelog
+
+## 0.3.0 (March 2, 2022)
+
+- Bug Fix: Update only includes edited fields
+- Feature: Support sorting by multiple fields
+- Bug Fix: Return dataProvider object, not function
+- Bug fix: nested keys with array values
+
 ## 0.2.0 (June 30, 2021)
 
 - Feature: Update only permitted fields.
