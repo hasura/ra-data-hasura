@@ -1,6 +1,6 @@
-import buildVariables from './buildVariables';
-import buildGqlQuery from './buildGqlQuery';
-import getResponseParser from './getResponseParser';
+import buildVariables from '../buildVariables';
+import buildGqlQuery from '../buildGqlQuery';
+import getResponseParser from '../getResponseParser';
 
 export const buildQueryFactory = (
   buildVariablesImpl,

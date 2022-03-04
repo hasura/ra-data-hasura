@@ -25,7 +25,7 @@ import { buildFields } from '../buildGqlQuery/buildFields';
 
 import { buildQueryFactory } from '../buildQuery';
 
-import type { FetchType, GetFieldName, IntrospectionResult } from '../types';
+import type { FetchType, IntrospectionResult } from '../types';
 
 const defaultOptions: {
   introspection: {
