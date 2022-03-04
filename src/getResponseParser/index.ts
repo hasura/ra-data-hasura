@@ -10,13 +10,25 @@ import {
   UPDATE_MANY,
   DELETE_MANY,
 } from '../helpers/fetchActions';
-import { IntrospectionResult, IntrospectedResource } from '../types';
+import { IntrospectionResult, IntrospectedResource, FetchType } from '../types';
 import { sanitizeResource } from './sanitizeResource';
 
-export const getResponseParser = (_: IntrospectionResult) => (
-  aorFetchType: string,
-  _?: IntrospectedResource
-) => (res: ApolloCurrentQueryResult<any>) => {
+export type GetResponseParser = (
+  introspectionResults: IntrospectionResult
+) => (
+  aorFetchType: FetchType,
+  resource?: IntrospectedResource
+) => (
+  res: ApolloCurrentQueryResult<any>
+) => {
+  data: any;
+  total?: number;
+};
+
+export const getResponseParser: GetResponseParser = (_) => (
+  aorFetchType,
+  _
+) => (res) => {
   const response = res.data;
 
   switch (aorFetchType) {
