@@ -22,8 +22,7 @@ import buildQuery from './buildQuery';
 export { buildQuery };
 export type { BuildQuery, BuildQueryFactory } from './buildQuery';
 
+export { buildVariables, BuildVariables } from './buildVariables';
+
 export { buildCustomDataProvider as default } from './customDataProvider';
 export type { BuildCustomDataProvider } from './customDataProvider';
-
-// TODO - currently untyped
-export { buildVariables } from './buildVariables';
