@@ -35,6 +35,10 @@ export type BuildGqlQuery = (
   variables: any
 ) => any;
 
+export type BuildGqlQueryFactory = (
+  introspectionResults: IntrospectionResult
+) => ReturnType<BuildGqlQuery>;
+
 export const buildGqlQuery: BuildGqlQuery = (
   _,
   buildFields,
@@ -137,7 +141,7 @@ export const buildGqlQuery: BuildGqlQuery = (
   ]);
 };
 
-export default (introspectionResults: IntrospectionResult) =>
+const buildGqlQueryFactory: BuildGqlQueryFactory = (introspectionResults) =>
   buildGqlQuery(
     introspectionResults,
     buildFields,
@@ -146,3 +150,5 @@ export default (introspectionResults: IntrospectionResult) =>
     buildApolloArgs,
     (resourceName) => `${resourceName}_aggregate`
   );
+
+export default buildGqlQueryFactory;

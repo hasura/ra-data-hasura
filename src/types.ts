@@ -2,6 +2,7 @@ import {
   IntrospectionObjectType,
   IntrospectionSchema,
   IntrospectionType,
+  IntrospectionField,
 } from 'graphql';
 
 export enum FetchType {
@@ -16,23 +17,15 @@ export enum FetchType {
   DELETE_MANY = 'DELETE_MANY',
 }
 
-export type IntrospectionOptions = {
-  schema?: IntrospectionSchema;
-  operationNames: {
-    [key: string]: (type: IntrospectionType) => string;
-  };
-  exclude?: string[] | ((type: IntrospectionType) => boolean);
-  include?: string[] | ((type: IntrospectionType) => boolean);
-};
-
 export type IntrospectedResource = {
   type: IntrospectionObjectType;
+} & {
+  [fetchType in FetchType]: IntrospectionField;
 };
+
 export type IntrospectionResult = {
   types: IntrospectionType[];
   queries: IntrospectionObjectType[];
   resources: IntrospectedResource[];
   schema: IntrospectionSchema;
 };
-
-export type GetFieldName = (name: string) => string;

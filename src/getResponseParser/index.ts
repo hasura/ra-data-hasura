@@ -1,4 +1,3 @@
-import { ApolloCurrentQueryResult } from 'apollo-client';
 import {
   GET_LIST,
   GET_MANY,
@@ -18,17 +17,16 @@ export type GetResponseParser = (
 ) => (
   aorFetchType: FetchType,
   resource?: IntrospectedResource
-) => (
-  res: ApolloCurrentQueryResult<any>
-) => {
+) => (res: {
+  data: any;
+}) => {
   data: any;
   total?: number;
 };
 
-export const getResponseParser: GetResponseParser = (_) => (
-  aorFetchType,
-  _
-) => (res) => {
+export const getResponseParser: GetResponseParser = () => (aorFetchType) => (
+  res
+) => {
   const response = res.data;
 
   switch (aorFetchType) {

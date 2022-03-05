@@ -18,8 +18,12 @@ export type { BuildGqlQuery } from './buildGqlQuery';
 export { getResponseParser } from './getResponseParser';
 export type { GetResponseParser } from './getResponseParser';
 
-// TODO - currently untyped
 import buildQuery from './buildQuery';
 export { buildQuery };
-export { buildVariables } from './buildVariables';
+export type { BuildQuery, BuildQueryFactory } from './buildQuery';
+
 export { buildCustomDataProvider as default } from './customDataProvider';
+export type { BuildCustomDataProvider } from './customDataProvider';
+
+// TODO - currently untyped
+export { buildVariables } from './buildVariables';

@@ -1,6 +1,5 @@
 import merge from 'lodash/merge';
-import buildDataProvider from 'ra-data-graphql';
-
+import buildDataProvider, { Options } from 'ra-data-graphql';
 import {
   GET_ONE,
   GET_LIST,
@@ -12,7 +11,6 @@ import {
   UPDATE_MANY,
   DELETE_MANY,
 } from '../helpers/fetchActions';
-
 import { buildVariables as defaultBuildVariables } from '../buildVariables';
 import { getResponseParser as defaultGetResponseParser } from '../getResponseParser';
 import { buildGqlQuery } from '../buildGqlQuery';
@@ -22,18 +20,10 @@ import {
   buildApolloArgs,
 } from '../buildGqlQuery/buildArgs';
 import { buildFields } from '../buildGqlQuery/buildFields';
-
 import { buildQueryFactory } from '../buildQuery';
+import type { IntrospectionResult } from '../types';
 
-import type { FetchType, IntrospectionResult } from '../types';
-
-const defaultOptions: {
-  introspection: {
-    operationNames: {
-      [fetchType in FetchType]: (resource: any) => string;
-    };
-  };
-} = {
+const defaultOptions: Partial<Options> = {
   introspection: {
     operationNames: {
       [GET_LIST]: (resource) => `${resource.name}`,
@@ -56,6 +46,10 @@ const buildGqlQueryDefaults = {
   buildApolloArgs,
   aggregateFieldName: (resourceName: string) => `${resourceName}_aggregate`,
 };
+
+export type BuildCustomDataProvider = () => ReturnType<
+  typeof buildDataProvider
+>;
 
 export const buildCustomDataProvider = (
   options = {},
