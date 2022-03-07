@@ -291,10 +291,10 @@ Each of these can be customized - functions overriding numbers 2 and 3 can be pa
 
 ```js
 {
-    buildFields?: Function,
-    buildMetaArgs?: Function,
-    buildArgs?: Function,
-    buildApolloArgs?: Function,
+  buildFields?: Function,
+  buildMetaArgs?: Function,
+  buildArgs?: Function,
+  buildApolloArgs?: Function,
 }
 ```
 
@@ -306,8 +306,9 @@ This can be easily done, and importantly can be done using `gql` template litera
 
 By default, the data provider will generate queries that include all fields on a resource, but without any relationships to nested entities. If you would like to keep these base fields but extend the query to also include related entities, then you can write a custom `buildFields` like this:
 
-```jsx
+```ts
 import buildDataProvider, { buildFields } from 'ra-data-hasura';
+import type { BuildFields } from 'ra-data-hasura';
 import gql from 'graphql-tag';
 
 /**
@@ -329,7 +330,7 @@ const EXTENDED_GET_ONE_USER = gql`
   }
 `;
 
-const customBuildFields = (type, fetchType) => {
+const customBuildFields: BuildFields = (type, fetchType) => {
   const resourceName = type.name;
 
   // First take the default fields (all, but no related or nested).
@@ -352,9 +353,10 @@ buildDataProvider(options, { buildFields: customBuildFields });
 
 If you want full control over the GraphQL query, then you can define the entire set of fields like this:
 
-```jsx
+```ts
 import gql from 'graphql-tag';
 import buildDataProvider, { buildFields } from 'ra-data-hasura';
+import type { BuildFields } from 'ra-data-hasura';
 
 /**
  * Extracts just the fields from a GraphQL AST.
@@ -382,7 +384,7 @@ const GET_ONE_USER = gql`
   }
 `;
 
-const customBuildFields = (type, fetchType) => {
+const customBuildFields: BuildFields = (type, fetchType) => {
   const resourceName = type.name;
 
   if (resourceName === 'users' && fetchType === 'GET_ONE') {
