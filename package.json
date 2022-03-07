@@ -29,6 +29,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf ./dist && tsc",
+    "prepublishOnly": "npm run test && npm run build",
     "test": "jest",
     "prettier": "prettier --config ./.prettierrc --write '**/*.{js,jsx,md}'"
   },
