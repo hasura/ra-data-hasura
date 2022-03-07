@@ -11,15 +11,24 @@ import {
   UPDATE_MANY,
   DELETE_MANY,
 } from '../helpers/fetchActions';
-import { buildVariables as defaultBuildVariables } from '../buildVariables';
-import { getResponseParser as defaultGetResponseParser } from '../getResponseParser';
-import { buildGqlQuery } from '../buildGqlQuery';
+import {
+  buildVariables as defaultBuildVariables,
+  BuildVariables,
+} from '../buildVariables';
+import {
+  getResponseParser as defaultGetResponseParser,
+  GetResponseParser,
+} from '../getResponseParser';
+import { buildGqlQuery, BuildGqlQuery } from '../buildGqlQuery';
 import {
   buildMetaArgs,
   buildArgs,
   buildApolloArgs,
+  BuildMetaArgs,
+  BuildArgs,
+  BuildApolloArgs,
 } from '../buildGqlQuery/buildArgs';
-import { buildFields } from '../buildGqlQuery/buildFields';
+import { buildFields, BuildFields } from '../buildGqlQuery/buildFields';
 import { buildQueryFactory } from '../buildQuery';
 import type { IntrospectionResult } from '../types';
 
@@ -47,11 +56,20 @@ const buildGqlQueryDefaults = {
   aggregateFieldName: (resourceName: string) => `${resourceName}_aggregate`,
 };
 
-export type BuildCustomDataProvider = () => ReturnType<
-  typeof buildDataProvider
->;
+export type BuildCustomDataProvider = (
+  options: Partial<Options>,
+  buildGqlQueryOverrides?: {
+    buildFields?: BuildFields;
+    buildMetaArgs?: BuildMetaArgs;
+    buildArgs?: BuildArgs;
+    buildApolloArgs?: BuildApolloArgs;
+    aggregateFieldName?: (resourceName: string) => string;
+  },
+  customBuildVariables?: BuildVariables,
+  customGetResponseParser?: GetResponseParser
+) => ReturnType<typeof buildDataProvider>;
 
-export const buildCustomDataProvider = (
+export const buildCustomDataProvider: BuildCustomDataProvider = (
   options = {},
   buildGqlQueryOverrides = {},
   customBuildVariables = defaultBuildVariables,
