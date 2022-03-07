@@ -26,3 +26,5 @@ export { buildVariables, BuildVariables } from './buildVariables';
 
 export { buildCustomDataProvider as default } from './customDataProvider';
 export type { BuildCustomDataProvider } from './customDataProvider';
+
+export { FetchType } from './types';
