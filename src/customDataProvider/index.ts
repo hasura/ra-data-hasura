@@ -1,5 +1,5 @@
 import merge from 'lodash/merge';
-import buildDataProvider from 'ra-data-graphql';
+import buildDataProvider, { Options } from 'ra-data-graphql';
 import {
   GET_ONE,
   GET_LIST,
@@ -10,33 +10,29 @@ import {
   UPDATE,
   UPDATE_MANY,
   DELETE_MANY,
-} from './fetchActions';
-
-import defaultBuildVariables from './buildVariables';
-import defaultGetResponseParser from './getResponseParser';
+} from '../helpers/fetchActions';
 import {
-  buildGqlQuery,
-  buildFields,
+  buildVariables as defaultBuildVariables,
+  BuildVariables,
+} from '../buildVariables';
+import {
+  getResponseParser as defaultGetResponseParser,
+  GetResponseParser,
+} from '../getResponseParser';
+import { buildGqlQuery, BuildGqlQuery } from '../buildGqlQuery';
+import {
   buildMetaArgs,
   buildArgs,
   buildApolloArgs,
-} from './buildGqlQuery';
-import { buildQueryFactory } from './buildQuery';
+  BuildMetaArgs,
+  BuildArgs,
+  BuildApolloArgs,
+} from '../buildGqlQuery/buildArgs';
+import { buildFields, BuildFields } from '../buildGqlQuery/buildFields';
+import { buildQueryFactory } from '../buildQuery';
+import type { IntrospectionResult } from '../types';
 
-export {
-  buildFields,
-  buildMetaArgs,
-  buildArgs,
-  buildApolloArgs,
-  defaultBuildVariables,
-  defaultGetResponseParser,
-};
-import buildQuery from './buildQuery';
-import buildVariables from './buildVariables';
-
-export { buildQuery, buildGqlQuery, buildVariables };
-
-const defaultOptions = {
+const defaultOptions: Partial<Options> = {
   introspection: {
     operationNames: {
       [GET_LIST]: (resource) => `${resource.name}`,
@@ -57,11 +53,24 @@ const buildGqlQueryDefaults = {
   buildMetaArgs,
   buildArgs,
   buildApolloArgs,
-  aggregateFieldName: (resourceName) => `${resourceName}_aggregate`,
+  aggregateFieldName: (resourceName: string) => `${resourceName}_aggregate`,
 };
 
-const buildCustomDataProvider = (
-  options,
+export type BuildCustomDataProvider = (
+  options: Partial<Options>,
+  buildGqlQueryOverrides?: {
+    buildFields?: BuildFields;
+    buildMetaArgs?: BuildMetaArgs;
+    buildArgs?: BuildArgs;
+    buildApolloArgs?: BuildApolloArgs;
+    aggregateFieldName?: (resourceName: string) => string;
+  },
+  customBuildVariables?: BuildVariables,
+  customGetResponseParser?: GetResponseParser
+) => ReturnType<typeof buildDataProvider>;
+
+export const buildCustomDataProvider: BuildCustomDataProvider = (
+  options = {},
   buildGqlQueryOverrides = {},
   customBuildVariables = defaultBuildVariables,
   customGetResponseParser = defaultGetResponseParser
@@ -71,7 +80,7 @@ const buildCustomDataProvider = (
     ...buildGqlQueryOverrides,
   };
 
-  const customBuildGqlQuery = (introspectionResults) =>
+  const customBuildGqlQuery = (introspectionResults: IntrospectionResult) =>
     buildGqlQuery(
       introspectionResults,
       buildGqlQueryOptions.buildFields,
@@ -87,9 +96,5 @@ const buildCustomDataProvider = (
     customGetResponseParser
   );
 
-  return buildDataProvider(
-    merge({}, defaultOptions, { buildQuery }, options)
-  );
+  return buildDataProvider(merge({}, defaultOptions, { buildQuery }, options));
 };
-
-export default buildCustomDataProvider;

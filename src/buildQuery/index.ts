@@ -1,8 +1,27 @@
-import buildVariables from './buildVariables';
-import buildGqlQuery from './buildGqlQuery';
-import getResponseParser from './getResponseParser';
+import { buildVariables } from '../buildVariables';
+import buildGqlQuery, { BuildGqlQueryFactory } from '../buildGqlQuery';
+import { getResponseParser, GetResponseParser } from '../getResponseParser';
+import type { FetchType, IntrospectionResult } from '../types';
 
-export const buildQueryFactory = (
+export type BuildQuery = (
+  introspectionResults: IntrospectionResult
+) => (
+  aorFetchType: FetchType,
+  resourceName: string,
+  params: any
+) => {
+  query: any;
+  variables: any;
+  parseResponse: ({ data }: any) => { data: any; total?: number };
+};
+
+export type BuildQueryFactory = (
+  buildVariablesImpl: any,
+  buildGqlQueryImpl: BuildGqlQueryFactory,
+  getResponseParserImpl: GetResponseParser
+) => BuildQuery;
+
+export const buildQueryFactory: BuildQueryFactory = (
   buildVariablesImpl,
   buildGqlQueryImpl,
   getResponseParserImpl
@@ -50,8 +69,7 @@ export const buildQueryFactory = (
     );
     const parseResponse = getResponseParserImpl(introspectionResults)(
       aorFetchType,
-      resource,
-      queryType
+      resource
     );
 
     return {
