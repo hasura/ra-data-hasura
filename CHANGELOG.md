@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 (March 22, 2022)
+
+- Feature: Add TypeScript support
+
 ## 0.3.0 (March 2, 2022)
 
 - Bug Fix: Update only includes edited fields

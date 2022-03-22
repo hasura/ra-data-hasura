@@ -6109,12 +6109,14 @@ PERFORMANCE OF THIS SOFTWARE.
                       ((t = Object(i.a)(Object(i.a)({}, t), { variables: d })),
                       (T = b = 'network-only' === c || 'no-cache' === c),
                       b ||
-                        ((g = this.dataStore.getCache().diff({
-                          query: p,
-                          variables: d,
-                          returnPartialData: !0,
-                          optimistic: !1,
-                        })),
+                        ((g = this.dataStore
+                          .getCache()
+                          .diff({
+                            query: p,
+                            variables: d,
+                            returnPartialData: !0,
+                            optimistic: !1,
+                          })),
                         (E = g.complete),
                         (O = g.result),
                         (T = !E || 'cache-and-network' === c),
@@ -6269,12 +6271,14 @@ PERFORMANCE OF THIS SOFTWARE.
                             (E && E.graphQLErrors) !== n.graphQLErrors;
                         if (f && f.data && !O) (T = f.data), (g = !1);
                         else {
-                          var _ = r.dataStore.getCache().diff({
-                            query: s,
-                            variables: n.previousVariables || n.variables,
-                            returnPartialData: !0,
-                            optimistic: !0,
-                          });
+                          var _ = r.dataStore
+                            .getCache()
+                            .diff({
+                              query: s,
+                              variables: n.previousVariables || n.variables,
+                              returnPartialData: !0,
+                              optimistic: !0,
+                            });
                           (T = _.result), (g = !_.complete);
                         }
                       }
@@ -6524,13 +6528,15 @@ PERFORMANCE OF THIS SOFTWARE.
             if (s && s.complete) return { data: s.result, partial: !1 };
             if ('no-cache' === o || 'network-only' === o)
               return { data: void 0, partial: !1 };
-            var c = this.dataStore.getCache().diff({
-                query: i,
-                variables: r,
-                previousResult: u ? u.data : void 0,
-                returnPartialData: !0,
-                optimistic: t,
-              }),
+            var c = this.dataStore
+                .getCache()
+                .diff({
+                  query: i,
+                  variables: r,
+                  previousResult: u ? u.data : void 0,
+                  returnPartialData: !0,
+                  optimistic: t,
+                }),
               l = c.result,
               f = c.complete;
             return { data: f || a ? l : void 0, partial: !f };
@@ -6677,12 +6683,14 @@ PERFORMANCE OF THIS SOFTWARE.
                     if (('all' === p && (n = e.errors), c || 'no-cache' === d))
                       t = e.data;
                     else {
-                      var r = i.dataStore.getCache().diff({
-                          variables: l,
-                          query: u,
-                          optimistic: !1,
-                          returnPartialData: !0,
-                        }),
+                      var r = i.dataStore
+                          .getCache()
+                          .diff({
+                            variables: l,
+                            query: u,
+                            optimistic: !1,
+                            returnPartialData: !0,
+                          }),
                         v = r.result;
                       (r.complete || s.returnPartialData) && (t = v);
                     }
