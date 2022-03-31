@@ -24,13 +24,13 @@ export const typeAwareKeyValueReducer: TypeAwareKeyValueReducer = (
     (t) => t.name === resource.type.name
   );
 
-  let value = null;
+  let value = params.data[key];
   if (type) {
     const field = (type as any)?.fields?.find(
       (t: IntrospectionField) => t.name === key
     );
     if (field?.type?.name === 'date' && params.data[key] === '') {
-      value = params.data[key];
+      value = null;
     }
   }
   return resource.type.fields.some((f) => f.name === key)
