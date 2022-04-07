@@ -39,107 +39,111 @@ export type BuildGqlQueryFactory = (
   introspectionResults: IntrospectionResult
 ) => ReturnType<BuildGqlQuery>;
 
-export const buildGqlQuery: BuildGqlQuery = (
-  _,
-  buildFields,
-  buildMetaArgs,
-  buildArgs,
-  buildApolloArgs,
-  aggregateFieldName
-) => (resource, aorFetchType, queryType, variables) => {
-  const { sortField, sortOrder, ...metaVariables } = variables;
-  const apolloArgs = buildApolloArgs(queryType, variables);
-  const args = buildArgs(queryType, variables);
-  const metaArgs = buildMetaArgs(queryType, metaVariables, aorFetchType);
-  const fields = buildFields(resource.type, aorFetchType);
-  if (
-    aorFetchType === GET_LIST ||
-    aorFetchType === GET_MANY ||
-    aorFetchType === GET_MANY_REFERENCE
-  ) {
+export const buildGqlQuery: BuildGqlQuery =
+  (
+    _,
+    buildFields,
+    buildMetaArgs,
+    buildArgs,
+    buildApolloArgs,
+    aggregateFieldName
+  ) =>
+  (resource, aorFetchType, queryType, variables) => {
+    const { sortField, sortOrder, ...metaVariables } = variables;
+    const apolloArgs = buildApolloArgs(queryType, variables);
+    const args = buildArgs(queryType, variables);
+    const metaArgs = buildMetaArgs(queryType, metaVariables, aorFetchType);
+    const fields = buildFields(resource.type, aorFetchType);
+    if (
+      aorFetchType === GET_LIST ||
+      aorFetchType === GET_MANY ||
+      aorFetchType === GET_MANY_REFERENCE
+    ) {
+      return gqlTypes.document([
+        gqlTypes.operationDefinition(
+          'query',
+          gqlTypes.selectionSet([
+            gqlTypes.field(
+              gqlTypes.name(queryType.name),
+              gqlTypes.name('items'),
+              args,
+              null,
+              gqlTypes.selectionSet(fields)
+            ),
+            gqlTypes.field(
+              gqlTypes.name(aggregateFieldName(queryType.name)),
+              gqlTypes.name('total'),
+              metaArgs,
+              null,
+              gqlTypes.selectionSet([
+                gqlTypes.field(
+                  gqlTypes.name('aggregate'),
+                  null,
+                  null,
+                  null,
+                  gqlTypes.selectionSet([
+                    gqlTypes.field(gqlTypes.name('count')),
+                  ])
+                ),
+              ])
+            ),
+          ]),
+          gqlTypes.name(queryType.name),
+          apolloArgs
+        ),
+      ]);
+    }
+
+    if (
+      aorFetchType === CREATE ||
+      aorFetchType === UPDATE ||
+      aorFetchType === UPDATE_MANY ||
+      aorFetchType === DELETE ||
+      aorFetchType === DELETE_MANY
+    ) {
+      return gqlTypes.document([
+        gqlTypes.operationDefinition(
+          'mutation',
+          gqlTypes.selectionSet([
+            gqlTypes.field(
+              gqlTypes.name(queryType.name),
+              gqlTypes.name('data'),
+              args,
+              null,
+              gqlTypes.selectionSet([
+                gqlTypes.field(
+                  gqlTypes.name('returning'),
+                  null,
+                  null,
+                  null,
+                  gqlTypes.selectionSet(fields)
+                ),
+              ])
+            ),
+          ]),
+          gqlTypes.name(queryType.name),
+          apolloArgs
+        ),
+      ]);
+    }
+
     return gqlTypes.document([
       gqlTypes.operationDefinition(
         'query',
         gqlTypes.selectionSet([
           gqlTypes.field(
             gqlTypes.name(queryType.name),
-            gqlTypes.name('items'),
+            gqlTypes.name('returning'),
             args,
             null,
             gqlTypes.selectionSet(fields)
           ),
-          gqlTypes.field(
-            gqlTypes.name(aggregateFieldName(queryType.name)),
-            gqlTypes.name('total'),
-            metaArgs,
-            null,
-            gqlTypes.selectionSet([
-              gqlTypes.field(
-                gqlTypes.name('aggregate'),
-                null,
-                null,
-                null,
-                gqlTypes.selectionSet([gqlTypes.field(gqlTypes.name('count'))])
-              ),
-            ])
-          ),
         ]),
         gqlTypes.name(queryType.name),
         apolloArgs
       ),
     ]);
-  }
-
-  if (
-    aorFetchType === CREATE ||
-    aorFetchType === UPDATE ||
-    aorFetchType === UPDATE_MANY ||
-    aorFetchType === DELETE ||
-    aorFetchType === DELETE_MANY
-  ) {
-    return gqlTypes.document([
-      gqlTypes.operationDefinition(
-        'mutation',
-        gqlTypes.selectionSet([
-          gqlTypes.field(
-            gqlTypes.name(queryType.name),
-            gqlTypes.name('data'),
-            args,
-            null,
-            gqlTypes.selectionSet([
-              gqlTypes.field(
-                gqlTypes.name('returning'),
-                null,
-                null,
-                null,
-                gqlTypes.selectionSet(fields)
-              ),
-            ])
-          ),
-        ]),
-        gqlTypes.name(queryType.name),
-        apolloArgs
-      ),
-    ]);
-  }
-
-  return gqlTypes.document([
-    gqlTypes.operationDefinition(
-      'query',
-      gqlTypes.selectionSet([
-        gqlTypes.field(
-          gqlTypes.name(queryType.name),
-          gqlTypes.name('returning'),
-          args,
-          null,
-          gqlTypes.selectionSet(fields)
-        ),
-      ]),
-      gqlTypes.name(queryType.name),
-      apolloArgs
-    ),
-  ]);
-};
+  };
 
 const buildGqlQueryFactory: BuildGqlQueryFactory = (introspectionResults) =>
   buildGqlQuery(
