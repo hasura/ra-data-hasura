@@ -10,13 +10,12 @@ type BuildCreateVariables = (
   queryType: any
 ) => any;
 
-export const buildCreateVariables: BuildCreateVariables = (
-  introspectionResults
-) => (resource, _, params, __) => {
-  const reducer = typeAwareKeyValueReducer(
-    introspectionResults,
-    resource,
-    params
-  );
-  return Object.keys(params.data).reduce(reducer, {});
-};
+export const buildCreateVariables: BuildCreateVariables =
+  (introspectionResults) => (resource, _, params, __) => {
+    const reducer = typeAwareKeyValueReducer(
+      introspectionResults,
+      resource,
+      params
+    );
+    return Object.keys(params.data).reduce(reducer, {});
+  };

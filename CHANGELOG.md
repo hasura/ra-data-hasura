@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 (April 7, 2022)
+
+- Bug Fix: Variables for mutations are not being populated, thanks to @nselikoff
+
 ## 0.4.0 (March 2, 2022)
 
 - Full Typescript rewrite thanks to Chris Vibert @cpv123

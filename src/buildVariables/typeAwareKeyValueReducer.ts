@@ -15,28 +15,25 @@ type TypeAwareKeyValueReducer = (
   params: any
 ) => (acc: any, key: any) => any;
 
-export const typeAwareKeyValueReducer: TypeAwareKeyValueReducer = (
-  introspectionResults,
-  resource,
-  params
-) => (acc, key) => {
-  const type = introspectionResults.types.find(
-    (t) => t.name === resource.type.name
-  );
-
-  let value = params.data[key];
-  if (type) {
-    const field = (type as any)?.fields?.find(
-      (t: IntrospectionField) => t.name === key
+export const typeAwareKeyValueReducer: TypeAwareKeyValueReducer =
+  (introspectionResults, resource, params) => (acc, key) => {
+    const type = introspectionResults.types.find(
+      (t) => t.name === resource.type.name
     );
-    if (field?.type?.name === 'date' && params.data[key] === '') {
-      value = null;
-    }
-  }
-  return resource.type.fields.some((f) => f.name === key)
-    ? {
-        ...acc,
-        [key]: value,
+
+    let value = params.data[key];
+    if (type) {
+      const field = (type as any)?.fields?.find(
+        (t: IntrospectionField) => t.name === key
+      );
+      if (field?.type?.name === 'date' && params.data[key] === '') {
+        value = null;
       }
-    : acc;
-};
+    }
+    return resource.type.fields.some((f) => f.name === key)
+      ? {
+          ...acc,
+          [key]: value,
+        }
+      : acc;
+  };
