@@ -17,6 +17,7 @@ type BuildGetListVariables = (
 
 const SPLIT_TOKEN = '#';
 const MULTI_SORT_TOKEN = ',';
+const SPLIT_OPERATION = '@';
 
 export const buildGetListVariables: BuildGetListVariables =
   () => (resource, _, params) => {
@@ -79,11 +80,12 @@ export const buildGetListVariables: BuildGetListVariables =
       if (key === 'ids') {
         filter = { id: { _in: obj['ids'] } };
       } else if (Array.isArray(obj[key])) {
-        filter = set({}, key.split(SPLIT_TOKEN), { _in: obj[key] });
+        let [keyName, operation = '_in'] = key.split(SPLIT_OPERATION);
+        filter = set({}, keyName.split(SPLIT_TOKEN), { [operation]: obj[key] });
       } else if (obj[key] && obj[key].format === 'hasura-raw-query') {
         filter = { [key]: obj[key].value || {} };
       } else {
-        let [keyName, operation = ''] = key.split('@');
+        let [keyName, operation = ''] = key.split(SPLIT_OPERATION);
         let operator;
         const field = resource.type.fields.find((f) => f.name === keyName);
         if (field) {
