@@ -1,4 +1,4 @@
-import { TypeKind, IntrospectionObjectType } from 'graphql';
+import { TypeKind, IntrospectionObjectType, FieldNode } from 'graphql';
 import * as gqlTypes from 'graphql-ast-types-browser';
 import getFinalType from '../helpers/getFinalType';
 import { FetchType } from '../types';
@@ -6,7 +6,7 @@ import { FetchType } from '../types';
 export type BuildFields = (
   type: IntrospectionObjectType,
   aorFetchType?: FetchType
-) => IntrospectionObjectType[];
+) => FieldNode[];
 
 export const buildFields: BuildFields = (type) =>
   type.fields.reduce((acc, field) => {
@@ -17,4 +17,4 @@ export const buildFields: BuildFields = (type) =>
     }
 
     return acc;
-  }, [] as IntrospectionObjectType[]);
+  }, [] as FieldNode[]);
