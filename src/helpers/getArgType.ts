@@ -1,10 +1,4 @@
 import * as gqlTypes from 'graphql-ast-types-browser';
-import {
-  IntrospectionType,
-  IntrospectionTypeRef,
-  IntrospectionNonNullTypeRef,
-  TypeKind,
-} from 'graphql';
 import getFinalType from './getFinalType';
 import isRequired from './isRequired';
 import isList from './isList';

@@ -19,7 +19,7 @@ import {
   getResponseParser as defaultGetResponseParser,
   GetResponseParser,
 } from '../getResponseParser';
-import { buildGqlQuery, BuildGqlQuery } from '../buildGqlQuery';
+import { buildGqlQuery } from '../buildGqlQuery';
 import {
   buildMetaArgs,
   buildArgs,
