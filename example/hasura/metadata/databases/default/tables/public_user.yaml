@@ -1,0 +1,51 @@
+table:
+  name: user
+  schema: public
+array_relationships:
+  - name: addresses
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: address
+          schema: public
+  - name: orders
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: order
+          schema: public
+  - name: product_reviews
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: product_review
+          schema: public
+insert_permissions:
+  - permission:
+      check: {}
+      columns: '*'
+    role: site-admin
+select_permissions:
+  - permission:
+      columns: '*'
+      filter: {}
+    role: site-admin
+  - permission:
+      columns: '*'
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+    role: user
+update_permissions:
+  - permission:
+      check: null
+      columns: '*'
+      filter: {}
+    role: site-admin
+delete_permissions:
+  - permission:
+      filter: {}
+    role: site-admin
