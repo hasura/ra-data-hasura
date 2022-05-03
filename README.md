@@ -1,6 +1,6 @@
 # ra-data-hasura
 
-A GraphQL data provider for [react-admin](https://marmelab.com/react-admin) tailored to target [Hasura](https://hasura.io/) GraphQL endpoints.
+A GraphQL data provider for [react-admin v3](https://marmelab.com/react-admin) tailored to target [Hasura](https://hasura.io/) GraphQL endpoints.
 
 - [ra-data-hasura](#ra-data-hasura)
   - [Benefits and Motivation](#benefits-and-motivation)
@@ -11,6 +11,7 @@ A GraphQL data provider for [react-admin](https://marmelab.com/react-admin) tail
     - [Customize the Apollo client](#customize-the-apollo-client)
     - [Adding Authentication Headers](#adding-authentication-headers)
     - [Customize the introspection](#customize-the-introspection)
+    - [Customize the Data Return](#customize-the-data-return)
   - [Customizing queries](#customizing-queries)
     - [Example: extending a query to include related entities](#example-extending-a-query-to-include-related-entities)
     - [Example: write a completely custom query](#example-write-a-completely-custom-query)
@@ -277,6 +278,62 @@ Pass the introspection options to the `buildApolloProvider` function:
 
 ```js
 buildApolloProvider({ introspection: introspectionOptions });
+```
+
+### Customize the Data Return
+
+Once the data is returned back from the provider, you can customize it by implementing the `DataProvider` interface. [An example is changing the ID key](https://marmelab.com/react-admin/FAQ.html#can-i-have-custom-identifiersprimary-keys-for-my-resources).
+
+```typescript
+const [dataProvider, setDataProvider] = React.useState<DataProvider | null>(
+  null
+);
+
+React.useEffect(() => {
+  const buildDataProvider = async () => {
+    const dataProviderHasura = await buildHasuraProvider({
+      clientOptions: {
+        uri: 'http://localhost:8080/v1/graphql',
+      },
+    });
+    const modifiedProvider: DataProvider = {
+      getList: async (resource, params) => {
+        let { data, ...metadata } = await dataProviderHasura.getList(
+          resource,
+          params
+        );
+
+        if (resource === 'example_resource_name') {
+          data = data.map(
+            (val): Record => ({
+              ...val,
+              id: val.region_id,
+            })
+          );
+        }
+
+        return {
+          data: data as any[],
+          ...metadata,
+        };
+      },
+      getOne: (resource, params) => dataProviderHasura.getOne(resource, params),
+      getMany: (resource, params) =>
+        dataProviderHasura.getMany(resource, params),
+      getManyReference: (resource, params) =>
+        dataProviderHasura.getManyReference(resource, params),
+      update: (resource, params) => dataProviderHasura.update(resource, params),
+      updateMany: (resource, params) =>
+        dataProviderHasura.updateMany(resource, params),
+      create: (resource, params) => dataProviderHasura.create(resource, params),
+      delete: (resource, params) => dataProviderHasura.delete(resource, params),
+      deleteMany: (resource, params) =>
+        dataProviderHasura.deleteMany(resource, params),
+    };
+    setDataProvider(() => modifiedProvider);
+  };
+  buildDataProvider();
+}, []);
 ```
 
 ## Customizing queries
