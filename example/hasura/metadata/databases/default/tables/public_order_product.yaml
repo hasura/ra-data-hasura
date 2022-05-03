@@ -1,0 +1,44 @@
+table:
+  name: order_product
+  schema: public
+object_relationships:
+  - name: order
+    using:
+      foreign_key_constraint_on: order_id
+  - name: product
+    using:
+      foreign_key_constraint_on: product_id
+insert_permissions:
+  - permission:
+      check: {}
+      columns: '*'
+    role: site-admin
+  - permission:
+      check:
+        order:
+          user_id:
+            _eq: X-Hasura-User-Id
+      columns: '*'
+    role: user
+select_permissions:
+  - permission:
+      columns: '*'
+      filter: {}
+    role: site-admin
+  - permission:
+      columns: '*'
+      filter:
+        order:
+          user_id:
+            _eq: X-Hasura-User-Id
+    role: user
+update_permissions:
+  - permission:
+      check: null
+      columns: '*'
+      filter: {}
+    role: site-admin
+delete_permissions:
+  - permission:
+      filter: {}
+    role: site-admin
