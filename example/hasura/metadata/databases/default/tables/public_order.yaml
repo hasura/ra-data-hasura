@@ -1,6 +1,6 @@
 table:
-  name: order
   schema: public
+  name: order
 object_relationships:
   - name: billing_address
     using:
@@ -20,37 +20,38 @@ array_relationships:
       foreign_key_constraint_on:
         column: order_id
         table:
-          name: order_product
           schema: public
+          name: order_product
 insert_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       check: {}
       columns: '*'
-    role: site-admin
-  - permission:
+  - role: user
+    permission:
       check:
         user_id:
           _eq: X-Hasura-User-Id
       columns: '*'
-    role: user
 select_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
-  - permission:
+      allow_aggregations: true
+  - role: user
+    permission:
       columns: '*'
       filter:
         user_id:
           _eq: X-Hasura-User-Id
-    role: user
 update_permissions:
-  - permission:
-      check: null
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
+      check: null
 delete_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       filter: {}
-    role: site-admin

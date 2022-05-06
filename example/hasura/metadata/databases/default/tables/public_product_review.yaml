@@ -1,6 +1,6 @@
 table:
-  name: product_review
   schema: public
+  name: product_review
 object_relationships:
   - name: product
     using:
@@ -9,11 +9,12 @@ object_relationships:
     using:
       foreign_key_constraint_on: user_id
 insert_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       check: {}
       columns: '*'
-    role: site-admin
-  - permission:
+  - role: user
+    permission:
       check:
         user:
           id:
@@ -22,34 +23,34 @@ insert_permissions:
             products:
               id:
                 _ceq: product_id
+      set:
+        user_id: X-Hasura-User-Id
       columns:
         - product_id
         - rating
         - comment
-      set:
-        user_id: X-Hasura-User-Id
-    role: user
 select_permissions:
-  - permission:
+  - role: anonymous
+    permission:
       columns: '*'
       filter: {}
-    role: anonymous
-  - permission:
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
-  - permission:
+      allow_aggregations: true
+  - role: user
+    permission:
       columns: '*'
       filter: {}
-    role: user
 update_permissions:
-  - permission:
-      check: null
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
-  - permission:
       check: null
+  - role: user
+    permission:
       columns:
         - product_id
         - rating
@@ -62,14 +63,15 @@ update_permissions:
             products:
               id:
                 _ceq: product_id
+      check: null
       set:
         user_id: X-Hasura-User-Id
-    role: user
 delete_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       filter: {}
-    role: site-admin
-  - permission:
+  - role: user
+    permission:
       filter:
         user:
           id:
@@ -78,4 +80,3 @@ delete_permissions:
             products:
               id:
                 _ceq: product_id
-    role: user

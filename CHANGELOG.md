@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 (May 6, 2022)
+
+- Example: Add Example v3 App
+- Feature: \_nin operator (#89), thanks to @fkowal
+- Bug Fix: buildFields types (#91), thanks to @cpv123
+- Bug Fix: Keep null values when sanitizing resources (#97), thanks to @nselikoff
+
 ## 0.4.1 (April 7, 2022)
 
 - Bug Fix: Variables for mutations are not being populated, thanks to @nselikoff
