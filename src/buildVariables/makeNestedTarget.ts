@@ -1,3 +1,5 @@
+import set from 'lodash/set';
+
 type TargetEquals = {
   _eq: any;
 };
@@ -15,13 +17,13 @@ export const makeNestedTarget = (
   // This simple example should make clear what this function does
   // makeNestedTarget("a.b", 42)
   // => { a: { b: { _eq: 42 } } }
-  return target
-    .split('.')
-    .reverse()
-    .reduce(
-      (acc, key) => ({
-        [key]: acc,
-      }),
-      { _eq: id } as NestedTarget<TargetEquals>
-    );
+  // makeNestedTarget("a.b@_contains@c.d", id)
+  // => { a: { b: { _contains: { c: { d: 42 } } } } }
+
+  let [path, operation = '_eq', oppath] = target.split('@');
+  let value = oppath ? set({}, oppath.split('.'), id) : id;
+
+  return set({}, path.split('.'), {
+    [operation]: value,
+  }) as NestedTarget<TargetEquals>;
 };
