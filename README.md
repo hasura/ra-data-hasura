@@ -17,6 +17,7 @@ A GraphQL data provider for [react-admin v3](https://marmelab.com/react-admin) t
     - [Example: write a completely custom query](#example-write-a-completely-custom-query)
   - [Special Filter Feature](#special-filter-feature)
     - [Nested filtering](#nested-filtering)
+    - [Jsonb filtering](#jsonb-filtering)
   - [Sorting lists by multiple columns](#sorting-lists-by-multiple-columns)
   - [Contributing](#contributing)
   - [Credits](#credits)
@@ -555,6 +556,75 @@ Will produce the following payload:
   "offset": 0,
   "order_by": {
     "id": "asc"
+  }
+}
+```
+
+## Jsonb filtering
+```jsx
+<TextField
+  label="Theme Color"
+  source="users#preferences@_contains@ux#theme"
+/>
+```
+Will produce payload:
+```json
+{
+  "where": {
+    "_and": [{
+      "users": {
+        "preferences": {
+          "_contains": {
+            "ux": {
+              "theme": "%TEXT"
+            }
+          }
+        }
+      }
+    }],
+
+  },
+  "limit": 10,
+  "offset": 0,
+  "order_by": {
+    "id": "asc"
+  }
+}
+```
+
+Fetch data matching a jsonb `_contains` operation
+```jsx
+<FunctionField render={(rec: {processor = "apple" | "google" | "stripe", ...})
+  <ReferenceManyField
+    reference="account_plans"
+    target="payments#details@_contains@processor#${rec.processor}_id"
+    source="payment_processor"
+  >
+    <Datagrid>
+    ...
+    </Datagrid>
+  </ReferenceManyField>
+} />
+```
+
+Will produce payload:
+```json
+{
+  "where": {
+    "_and":[
+      {
+        "payments": {
+          "details":
+            {
+              "_contains": {
+                "processor": {
+                  "%{rec.processor}_id": "%{rec.id}"
+                }
+              }
+            }
+        }
+      }
+    ]
   }
 }
 ```
