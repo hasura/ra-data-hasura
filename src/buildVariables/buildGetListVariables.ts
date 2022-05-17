@@ -164,9 +164,9 @@ export const buildGetListVariables: BuildGetListVariables =
           );
         }
 
-        const multiSort = fields.map((field: any, index: number) => ({
-          [field]: orders[index],
-        }));
+        const multiSort = fields.map((field: any, index: number) =>
+          set({}, field, orders[index])
+        );
         result['order_by'] = multiSort;
       } else {
         result['order_by'] = set({}, field, order.toLowerCase());
