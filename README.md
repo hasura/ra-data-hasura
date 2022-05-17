@@ -561,29 +561,28 @@ Will produce the following payload:
 ```
 
 ## Jsonb filtering
-
 ```jsx
-<TextField label="Theme Color" source="users#preferences@_contains@ux#theme" />
+<TextField
+  label="Theme Color"
+  source="users#preferences@_contains@ux#theme"
+/>
 ```
-
 Will produce payload:
-
 ```json
 {
   "where": {
-    "_and": [
-      {
-        "users": {
-          "preferences": {
-            "_contains": {
-              "ux": {
-                "theme": "%TEXT"
-              }
+    "_and": [{
+      "users": {
+        "preferences": {
+          "_contains": {
+            "ux": {
+              "theme": "%TEXT"
             }
           }
         }
       }
-    ]
+    }],
+
   },
   "limit": 10,
   "offset": 0,
@@ -594,7 +593,6 @@ Will produce payload:
 ```
 
 Fetch data matching a jsonb `_contains` operation
-
 ```jsx
 <FunctionField render={(rec: {processor = "apple" | "google" | "stripe", ...})
   <ReferenceManyField
@@ -610,20 +608,20 @@ Fetch data matching a jsonb `_contains` operation
 ```
 
 Will produce payload:
-
 ```json
 {
   "where": {
-    "_and": [
+    "_and":[
       {
         "payments": {
-          "details": {
-            "_contains": {
-              "processor": {
-                "%{rec.processor}_id": "%{rec.id}"
+          "details":
+            {
+              "_contains": {
+                "processor": {
+                  "%{rec.processor}_id": "%{rec.id}"
+                }
               }
             }
-          }
         }
       }
     ]
@@ -651,7 +649,7 @@ will generate a query with an `order_by` variable like
 order_by: [{ title: "asc" }, { is_completed: "desc" }]
 ```
 
-Fields may contain dots to specify sorting by nested object properties similarly to React Admin `source` property.
+Fields may contain dots to specify sorting by nested object properties similarly to React Admin ``source`` property.
 
 ## Contributing
 
