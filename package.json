@@ -37,10 +37,10 @@
   "dependencies": {
     "graphql-ast-types-browser": "~1.0.2",
     "lodash": "~4.17.21",
-    "ra-data-graphql": "^3.19.11"
+    "ra-data-graphql": "^4.0.3"
   },
   "peerDependencies": {
-    "ra-core": "^3.19.11"
+    "ra-core": "^4.0.0"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
