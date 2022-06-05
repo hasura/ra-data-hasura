@@ -1,6 +1,6 @@
 table:
-  name: product
   schema: public
+  name: product
 object_relationships:
   - name: category
     using:
@@ -11,41 +11,42 @@ array_relationships:
       foreign_key_constraint_on:
         column: product_id
         table:
-          name: order_product
           schema: public
+          name: order_product
   - name: product_reviews
     using:
       foreign_key_constraint_on:
         column: product_id
         table:
-          name: product_review
           schema: public
+          name: product_review
 insert_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       check: {}
       columns: '*'
-    role: site-admin
 select_permissions:
-  - permission:
+  - role: anonymous
+    permission:
+      columns: '*'
+      filter: {}
       allow_aggregations: true
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: anonymous
-  - permission:
+      allow_aggregations: true
+  - role: user
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
-  - permission:
-      columns: '*'
-      filter: {}
-    role: user
 update_permissions:
-  - permission:
-      check: null
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
+      check: null
 delete_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       filter: {}
-    role: site-admin

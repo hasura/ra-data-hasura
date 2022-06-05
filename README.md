@@ -358,7 +358,7 @@ Each of these can be customized - functions overriding numbers 2 and 3 can be pa
 
 A likely scenario is that you want to override only the `buildFields` part so that you can customize your GraphQL queries - requesting fewer fields, more fields, nested fields etc.
 
-This can be easily done, and importantly can be done using `gql` template literal tags, as shown in the exmples below. Take a look at this [demo application](https://github.com/cpv123/react-admin-hasura-queries) to see it in action.
+This can be easily done, and importantly can be done using `gql` template literal tags, as shown in the examples below. Take a look at this [demo application](https://github.com/cpv123/react-admin-hasura-queries) to see it in action.
 
 ### Example: extending a query to include related entities
 
