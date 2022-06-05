@@ -649,6 +649,8 @@ will generate a query with an `order_by` variable like
 order_by: [{ title: "asc" }, { is_completed: "desc" }]
 ```
 
+Fields may contain dots to specify sorting by nested object properties similarly to React Admin ``source`` property.
+
 ## Contributing
 
 To modify, extend and test this package locally,
