@@ -1,23 +1,23 @@
 table:
-  name: site_admin
   schema: public
+  name: site_admin
 insert_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       check: {}
       columns: '*'
-    role: site-admin
 select_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
 update_permissions:
-  - permission:
-      check: null
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
+      check: null
 delete_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       filter: {}
-    role: site-admin

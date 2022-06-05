@@ -1,6 +1,6 @@
 table:
-  name: product_category_enum
   schema: public
+  name: product_category_enum
 is_enum: true
 array_relationships:
   - name: products
@@ -8,33 +8,33 @@ array_relationships:
       foreign_key_constraint_on:
         column: category_display_name
         table:
-          name: product
           schema: public
+          name: product
 insert_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       check: {}
       columns: '*'
-    role: site-admin
 select_permissions:
-  - permission:
+  - role: anonymous
+    permission:
       columns: '*'
       filter: {}
-    role: anonymous
-  - permission:
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
-  - permission:
+  - role: user
+    permission:
       columns: '*'
       filter: {}
-    role: user
 update_permissions:
-  - permission:
-      check: null
+  - role: site-admin
+    permission:
       columns: '*'
       filter: {}
-    role: site-admin
+      check: null
 delete_permissions:
-  - permission:
+  - role: site-admin
+    permission:
       filter: {}
-    role: site-admin
