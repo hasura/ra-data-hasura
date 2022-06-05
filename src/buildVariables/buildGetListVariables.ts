@@ -80,8 +80,11 @@ export const buildGetListVariables: BuildGetListVariables =
       if (key === 'ids') {
         filter = { id: { _in: obj['ids'] } };
       } else if (Array.isArray(obj[key])) {
-        let [keyName, operation = '_in'] = key.split(SPLIT_OPERATION);
-        filter = set({}, keyName.split(SPLIT_TOKEN), { [operation]: obj[key] });
+        let [keyName, operation = '_in', opPath] = key.split(SPLIT_OPERATION);
+        let value = opPath
+          ? set({}, opPath.split(SPLIT_TOKEN), obj[key])
+          : obj[key];
+        filter = set({}, keyName.split(SPLIT_TOKEN), { [operation]: value });
       } else if (obj[key] && obj[key].format === 'hasura-raw-query') {
         filter = { [key]: obj[key].value || {} };
       } else {
@@ -161,9 +164,9 @@ export const buildGetListVariables: BuildGetListVariables =
           );
         }
 
-        const multiSort = fields.map((field: any, index: number) => ({
-          [field]: orders[index],
-        }));
+        const multiSort = fields.map((field: any, index: number) =>
+          set({}, field, orders[index])
+        );
         result['order_by'] = multiSort;
       } else {
         result['order_by'] = set({}, field, order.toLowerCase());

@@ -17,6 +17,7 @@ A GraphQL data provider for [react-admin v3](https://marmelab.com/react-admin) t
     - [Example: write a completely custom query](#example-write-a-completely-custom-query)
   - [Special Filter Feature](#special-filter-feature)
     - [Nested filtering](#nested-filtering)
+    - [Jsonb filtering](#jsonb-filtering)
   - [Sorting lists by multiple columns](#sorting-lists-by-multiple-columns)
   - [Contributing](#contributing)
   - [Credits](#credits)
@@ -559,6 +560,75 @@ Will produce the following payload:
 }
 ```
 
+## Jsonb filtering
+```jsx
+<TextField
+  label="Theme Color"
+  source="users#preferences@_contains@ux#theme"
+/>
+```
+Will produce payload:
+```json
+{
+  "where": {
+    "_and": [{
+      "users": {
+        "preferences": {
+          "_contains": {
+            "ux": {
+              "theme": "%TEXT"
+            }
+          }
+        }
+      }
+    }],
+
+  },
+  "limit": 10,
+  "offset": 0,
+  "order_by": {
+    "id": "asc"
+  }
+}
+```
+
+Fetch data matching a jsonb `_contains` operation
+```jsx
+<FunctionField render={(rec: {processor = "apple" | "google" | "stripe", ...})
+  <ReferenceManyField
+    reference="account_plans"
+    target="payments#details@_contains@processor#${rec.processor}_id"
+    source="payment_processor"
+  >
+    <Datagrid>
+    ...
+    </Datagrid>
+  </ReferenceManyField>
+} />
+```
+
+Will produce payload:
+```json
+{
+  "where": {
+    "_and":[
+      {
+        "payments": {
+          "details":
+            {
+              "_contains": {
+                "processor": {
+                  "%{rec.processor}_id": "%{rec.id}"
+                }
+              }
+            }
+        }
+      }
+    ]
+  }
+}
+```
+
 ## Sorting lists by multiple columns
 
 Hasura support [sorting by multiple fields](https://hasura.io/docs/latest/graphql/core/databases/postgres/queries/sorting.html#sorting-by-multiple-fields) but React Admin itself doesn't allow the `List` component to receive an array as the `sort` prop. So to achieve sorting by multiple fields, separate the field and order values using a comma.
@@ -578,6 +648,8 @@ will generate a query with an `order_by` variable like
 ```
 order_by: [{ title: "asc" }, { is_completed: "desc" }]
 ```
+
+Fields may contain dots to specify sorting by nested object properties similarly to React Admin ``source`` property.
 
 ## Contributing
 
