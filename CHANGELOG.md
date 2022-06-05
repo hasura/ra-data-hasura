@@ -4,7 +4,8 @@
 
 - Example: Add Example v3 App
 - Feature: \_nin operator (#89), thanks to @fkowal
-- Feature: enable support for \_contains operator and nested path in jsonb joins, thanks to @fkowal
+- Feature: Enable support for \_contains operator and nested path in jsonb joins, thanks to @fkowal
+- Feature: Support nested fields when sorting by multiple columns, thanks to @daa
 - Bug Fix: buildFields types (#91), thanks to @cpv123
 - Bug Fix: Keep null values when sanitizing resources (#97), thanks to @nselikoff
 
