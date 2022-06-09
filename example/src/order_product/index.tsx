@@ -2,14 +2,13 @@ import {
   Datagrid,
   DateField,
   List,
-  ListProps,
   NumberField,
   ReferenceField,
   TextField,
 } from 'react-admin';
 
-export const OrderProductList = (props: ListProps) => (
-  <List {...props}>
+export const OrderProductList = () => (
+  <List>
     <Datagrid rowClick="edit">
       <TextField source="id" />
       <DateField source="created_at" />

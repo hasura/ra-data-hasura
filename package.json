@@ -1,6 +1,6 @@
 {
   "name": "ra-data-hasura",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "A data provider for connecting react-admin to a Hasura endpoint",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -37,10 +37,10 @@
   "dependencies": {
     "graphql-ast-types-browser": "~1.0.2",
     "lodash": "~4.17.21",
-    "ra-data-graphql": "^3.19.11"
+    "ra-data-graphql": "^4.0.3"
   },
   "peerDependencies": {
-    "ra-core": "^3.19.11"
+    "ra-core": "^4.1.2"
   },
   "devDependencies": {
     "@types/jest": "^28.1.1",
@@ -57,7 +57,6 @@
   "overrides": {
     "graphql-ast-types-browser": {
       "graphql": "$graphql"
-    },
-    "react": "^17"
+    }
   }
 }

@@ -4,9 +4,7 @@ import {
   DateField,
   DateInput,
   Edit,
-  EditProps,
   List,
-  ListProps,
   NumberField,
   ReferenceInput,
   SelectInput,
@@ -15,8 +13,8 @@ import {
   TextInput,
 } from 'react-admin';
 
-export const ProductList = (props: ListProps) => (
-  <List {...props}>
+export const ProductList = () => (
+  <List>
     <Datagrid rowClick="edit">
       <TextField source="id" />
       <TextField source="name" />
@@ -31,8 +29,8 @@ export const ProductList = (props: ListProps) => (
   </List>
 );
 
-export const ProductEdit = (props: EditProps) => (
-  <Edit {...props}>
+export const ProductEdit = () => (
+  <Edit>
     <SimpleForm>
       <TextInput source="id" />
       <ReferenceInput source="billing_address_id" reference="address">

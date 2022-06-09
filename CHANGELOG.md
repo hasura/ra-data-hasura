@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 (June 6, 2022)
+
+- Upgrade library and sample to React Admin v4, thanks to @LucaColonnello
+
 ## 0.4.2 (May 6, 2022)
 
 - Example: Add Example v3 App

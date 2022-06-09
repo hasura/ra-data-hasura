@@ -3,17 +3,15 @@ import {
   DateField,
   DateInput,
   Edit,
-  EditProps,
   EmailField,
   List,
-  ListProps,
   SimpleForm,
   TextField,
   TextInput,
 } from 'react-admin';
 
-export const UserList = (props: ListProps) => (
-  <List {...props}>
+export const UserList = () => (
+  <List>
     <Datagrid rowClick="edit">
       <TextField source="id" />
       <DateField source="created_at" />
@@ -25,8 +23,8 @@ export const UserList = (props: ListProps) => (
   </List>
 );
 
-export const UserEdit = (props: EditProps) => (
-  <Edit {...props}>
+export const UserEdit = () => (
+  <Edit>
     <SimpleForm>
       <TextInput source="id" />
       <DateInput source="created_at" />

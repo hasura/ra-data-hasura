@@ -7,6 +7,7 @@ import { setContext } from '@apollo/client/link/context';
 import { OrderEdit, OrderList } from './order';
 import { OrderProductList } from './order_product';
 import { UserEdit, UserList } from './user';
+import { AddressEdit, AddressList } from './address';
 
 const httpLink = createHttpLink({
   uri: 'http://localhost:8080/v1/graphql',
@@ -45,8 +46,8 @@ const App = () => {
 
   return (
     <Admin dataProvider={dataProvider}>
-      <Resource name="address" />
       <Resource name="order" list={OrderList} edit={OrderEdit} />
+      <Resource name="address" list={AddressList} edit={AddressEdit} />
       <Resource name="order_product" list={OrderProductList} />
       <Resource name="product" list={ProductList} edit={ProductEdit} />
       <Resource name="user" list={UserList} edit={UserEdit} />

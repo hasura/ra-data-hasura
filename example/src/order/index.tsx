@@ -5,9 +5,7 @@ import {
   DateField,
   DateInput,
   Edit,
-  EditProps,
   List,
-  ListProps,
   ReferenceField,
   ReferenceInput,
   SelectInput,
@@ -16,8 +14,8 @@ import {
   TextInput,
 } from 'react-admin';
 
-export const OrderList = (props: ListProps) => (
-  <List {...props}>
+export const OrderList = () => (
+  <List>
     <Datagrid rowClick="edit">
       <TextField source="id" />
       <ReferenceField source="billing_address_id" reference="address">
@@ -37,8 +35,8 @@ export const OrderList = (props: ListProps) => (
   </List>
 );
 
-export const OrderEdit = (props: EditProps) => (
-  <Edit {...props}>
+export const OrderEdit = () => (
+  <Edit>
     <SimpleForm>
       <ReferenceInput source="billing_address_id" reference="address">
         <SelectInput optionText="address_line_one" />
