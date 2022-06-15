@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 (June 14, 2022)
+
+- Fix dependency issue
+
 ## 0.5.0 (June 6, 2022)
 
 - Upgrade library and sample to React Admin v4, thanks to @LucaColonnello
