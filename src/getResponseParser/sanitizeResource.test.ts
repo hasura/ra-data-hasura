@@ -12,4 +12,29 @@ describe('sanitizeResource', () => {
       '1': { name: 'brand', value: null },
     });
   });
+
+  it('Should skip key with two underscores', () => {
+    expect(
+      sanitizeResource([
+        {
+          name: 'vendor',
+          value: 'Test Vendor',
+          metadata: {
+            _key: 'value',
+            fields: [{ _type: 'string', name: 'title' }],
+          },
+          __typename: 'name',
+        },
+      ])
+    ).toEqual({
+      '0': {
+        name: 'vendor',
+        value: 'Test Vendor',
+        metadata: {
+          _key: 'value',
+          fields: [{ _type: 'string', name: 'title' }],
+        },
+      },
+    });
+  });
 });
