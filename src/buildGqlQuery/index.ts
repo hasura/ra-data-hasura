@@ -59,7 +59,7 @@ export const buildGqlQuery: BuildGqlQuery =
       aorFetchType === GET_MANY ||
       aorFetchType === GET_MANY_REFERENCE
     ) {
-      let gQlArray = [
+      let gqlArray = [
         gqlTypes.field(
           gqlTypes.name(queryType.name),
           gqlTypes.name('items'),
@@ -71,7 +71,7 @@ export const buildGqlQuery: BuildGqlQuery =
       // Skip aggregate calls when provided aggregateFieldName function returns NO_COUNT.
       // This is useful to avoid expensive count queries.
       if (aggregateFieldName(queryType.name) !== 'NO_COUNT') {
-        gQlArray.push(
+        gqlArray.push(
           gqlTypes.field(
             gqlTypes.name(aggregateFieldName(queryType.name)),
             gqlTypes.name('total'),
@@ -92,7 +92,7 @@ export const buildGqlQuery: BuildGqlQuery =
       return gqlTypes.document([
         gqlTypes.operationDefinition(
           'query',
-          gqlTypes.selectionSet(gQlArray),
+          gqlTypes.selectionSet(gqlArray),
           gqlTypes.name(queryType.name),
           apolloArgs
         ),
