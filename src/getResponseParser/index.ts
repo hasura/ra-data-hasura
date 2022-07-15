@@ -33,6 +33,7 @@ export const getResponseParser: GetResponseParser =
         if (typeof response.total !== 'undefined') {
           output.total = response.total.aggregate.count;
         } else {
+          // TODO: behave smarter and set hasNextPage=false when no more records exist.
           output.pageInfo = {
             hasPreviousPage: true,
             hasNextPage: true,

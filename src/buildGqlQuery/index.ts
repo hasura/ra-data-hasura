@@ -68,6 +68,8 @@ export const buildGqlQuery: BuildGqlQuery =
           gqlTypes.selectionSet(fields)
         ),
       ];
+      // Skip aggregate calls when provided aggregateFieldName function returns NO_COUNT.
+      // This is useful to avoid expensive count queries.
       if (aggregateFieldName(queryType.name) !== 'NO_COUNT') {
         gQlArray.push(
           gqlTypes.field(
