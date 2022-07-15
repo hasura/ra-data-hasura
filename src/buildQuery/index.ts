@@ -3,6 +3,15 @@ import buildGqlQuery, { BuildGqlQueryFactory } from '../buildGqlQuery';
 import { getResponseParser, GetResponseParser } from '../getResponseParser';
 import type { FetchType, IntrospectionResult } from '../types';
 
+export type QueryResponse = {
+  data: any;
+  total?: number;
+  pageInfo?: {
+    hasNextPage?: boolean;
+    hasPreviousPage?: boolean;
+  };
+};
+
 export type BuildQuery = (introspectionResults: IntrospectionResult) => (
   aorFetchType: FetchType,
   resourceName: string,
@@ -10,7 +19,7 @@ export type BuildQuery = (introspectionResults: IntrospectionResult) => (
 ) => {
   query: any;
   variables: any;
-  parseResponse: ({ data }: any) => { data: any; total?: number };
+  parseResponse: ({ data }: any) => QueryResponse;
 };
 
 export type BuildQueryFactory = (

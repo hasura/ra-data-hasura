@@ -59,35 +59,38 @@ export const buildGqlQuery: BuildGqlQuery =
       aorFetchType === GET_MANY ||
       aorFetchType === GET_MANY_REFERENCE
     ) {
+      let gQlArray = [
+        gqlTypes.field(
+          gqlTypes.name(queryType.name),
+          gqlTypes.name('items'),
+          args,
+          null,
+          gqlTypes.selectionSet(fields)
+        ),
+      ];
+      if (aggregateFieldName(queryType.name) !== 'NO_COUNT') {
+        gQlArray.push(
+          gqlTypes.field(
+            gqlTypes.name(aggregateFieldName(queryType.name)),
+            gqlTypes.name('total'),
+            metaArgs,
+            null,
+            gqlTypes.selectionSet([
+              gqlTypes.field(
+                gqlTypes.name('aggregate'),
+                null,
+                null,
+                null,
+                gqlTypes.selectionSet([gqlTypes.field(gqlTypes.name('count'))])
+              ),
+            ])
+          )
+        );
+      }
       return gqlTypes.document([
         gqlTypes.operationDefinition(
           'query',
-          gqlTypes.selectionSet([
-            gqlTypes.field(
-              gqlTypes.name(queryType.name),
-              gqlTypes.name('items'),
-              args,
-              null,
-              gqlTypes.selectionSet(fields)
-            ),
-            gqlTypes.field(
-              gqlTypes.name(aggregateFieldName(queryType.name)),
-              gqlTypes.name('total'),
-              metaArgs,
-              null,
-              gqlTypes.selectionSet([
-                gqlTypes.field(
-                  gqlTypes.name('aggregate'),
-                  null,
-                  null,
-                  null,
-                  gqlTypes.selectionSet([
-                    gqlTypes.field(gqlTypes.name('count')),
-                  ])
-                ),
-              ])
-            ),
-          ]),
+          gqlTypes.selectionSet(gQlArray),
           gqlTypes.name(queryType.name),
           apolloArgs
         ),
