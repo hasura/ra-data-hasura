@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.2 (July 27, 2022)
+
+- Update to GraphQL 16
+- Fix: only filter out GraphQL reserved names (#116), thanks to @n3n
+- Feature: Support skipping count aggregate on hasura (#120), thanks to @mohammad-bolt
+
 ## 0.5.1 (June 14, 2022)
 
 - Fix dependency issue
