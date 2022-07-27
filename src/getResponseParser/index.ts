@@ -10,15 +10,15 @@ import {
   DELETE_MANY,
 } from '../helpers/fetchActions';
 import { IntrospectionResult, IntrospectedResource, FetchType } from '../types';
+import { QueryResponse } from '../buildQuery';
 import { sanitizeResource } from './sanitizeResource';
 
-export type GetResponseParser = (introspectionResults: IntrospectionResult) => (
+export type GetResponseParser = (
+  introspectionResults: IntrospectionResult
+) => (
   aorFetchType: FetchType,
   resource?: IntrospectedResource
-) => (res: { data: any }) => {
-  data: any;
-  total?: number;
-};
+) => (res: { data: any }) => QueryResponse;
 
 export const getResponseParser: GetResponseParser =
   () => (aorFetchType) => (res) => {
@@ -27,10 +27,19 @@ export const getResponseParser: GetResponseParser =
     switch (aorFetchType) {
       case GET_MANY_REFERENCE:
       case GET_LIST:
-        return {
+        let output: QueryResponse = {
           data: response.items.map(sanitizeResource),
-          total: response.total.aggregate.count,
         };
+        if (typeof response.total !== 'undefined') {
+          output.total = response.total.aggregate.count;
+        } else {
+          // TODO: behave smarter and set hasNextPage=false when no more records exist.
+          output.pageInfo = {
+            hasPreviousPage: true,
+            hasNextPage: true,
+          };
+        }
+        return output;
 
       case GET_MANY:
         return { data: response.items.map(sanitizeResource) };

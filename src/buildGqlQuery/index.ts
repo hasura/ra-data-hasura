@@ -59,35 +59,40 @@ export const buildGqlQuery: BuildGqlQuery =
       aorFetchType === GET_MANY ||
       aorFetchType === GET_MANY_REFERENCE
     ) {
+      let gqlArray = [
+        gqlTypes.field(
+          gqlTypes.name(queryType.name),
+          gqlTypes.name('items'),
+          args,
+          null,
+          gqlTypes.selectionSet(fields)
+        ),
+      ];
+      // Skip aggregate calls when provided aggregateFieldName function returns NO_COUNT.
+      // This is useful to avoid expensive count queries.
+      if (aggregateFieldName(queryType.name) !== 'NO_COUNT') {
+        gqlArray.push(
+          gqlTypes.field(
+            gqlTypes.name(aggregateFieldName(queryType.name)),
+            gqlTypes.name('total'),
+            metaArgs,
+            null,
+            gqlTypes.selectionSet([
+              gqlTypes.field(
+                gqlTypes.name('aggregate'),
+                null,
+                null,
+                null,
+                gqlTypes.selectionSet([gqlTypes.field(gqlTypes.name('count'))])
+              ),
+            ])
+          )
+        );
+      }
       return gqlTypes.document([
         gqlTypes.operationDefinition(
           'query',
-          gqlTypes.selectionSet([
-            gqlTypes.field(
-              gqlTypes.name(queryType.name),
-              gqlTypes.name('items'),
-              args,
-              null,
-              gqlTypes.selectionSet(fields)
-            ),
-            gqlTypes.field(
-              gqlTypes.name(aggregateFieldName(queryType.name)),
-              gqlTypes.name('total'),
-              metaArgs,
-              null,
-              gqlTypes.selectionSet([
-                gqlTypes.field(
-                  gqlTypes.name('aggregate'),
-                  null,
-                  null,
-                  null,
-                  gqlTypes.selectionSet([
-                    gqlTypes.field(gqlTypes.name('count')),
-                  ])
-                ),
-              ])
-            ),
-          ]),
+          gqlTypes.selectionSet(gqlArray),
           gqlTypes.name(queryType.name),
           apolloArgs
         ),
