@@ -1,6 +1,7 @@
 export const sanitizeResource = (data: any = {}): object => {
   const result = Object.keys(data).reduce((acc, key) => {
-    if (key.startsWith('_')) {
+    // intend to remove the following reserved names https://spec.graphql.org/draft/#sec-Names.Reserved-Names
+    if (key.startsWith('__')) {
       return acc;
     }
 
