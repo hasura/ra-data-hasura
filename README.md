@@ -169,6 +169,33 @@ will generate the following GraphQL query variables:
 }
 ```
 
+and
+
+```jsx
+export const AddressList = () => (
+  <List
+    sort={{ field: 'city', order: 'DESC' }}
+    filter={{ distinct_on: 'city' }}
+  >
+    ...
+  </List>
+);
+```
+
+will generate the following GraphQL query variables:
+
+```json
+{
+  // ...
+  "order_by": {
+    "city": "desc"
+  },
+  "distinct_on": "city"
+}
+```
+
+Keep in mind that `distinct_on` must be used in conjunction with `order_by`, otherwise a `"distinct_on" columns must match initial "order_by" columns"` error will result. See more [here](https://hasura.io/docs/latest/queries/postgres/distinct-queries/#the-distinct_on-argument).
+
 ## Options
 
 ### Customize the Apollo client
