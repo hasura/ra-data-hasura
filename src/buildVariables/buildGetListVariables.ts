@@ -25,6 +25,14 @@ export const buildGetListVariables: BuildGetListVariables =
     let { filter: filterObj = {} } = params;
     const { customFilters = [] } = params;
 
+    const distinctOnField = 'distinct_on';
+    /** Setting "distinct_on" to be the `filters` object attribute to be used inside RA
+     * and setting to a `distinct_on` variable
+     * and removing from the filter object
+     */
+    const { distinct_on = '' } = filterObj;
+    filterObj = omit(filterObj, [distinctOnField]);
+
     /**
      * Nested entities are parsed by CRA, which returns a nested object
      * { 'level1': {'level2': 'test'}}
@@ -171,6 +179,10 @@ export const buildGetListVariables: BuildGetListVariables =
       } else {
         result['order_by'] = set({}, field, order.toLowerCase());
       }
+    }
+
+    if (distinct_on) {
+      result["distinct_on"] = distinct_on;
     }
 
     return result;
