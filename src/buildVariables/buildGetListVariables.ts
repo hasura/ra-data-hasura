@@ -98,37 +98,39 @@ export const buildGetListVariables: BuildGetListVariables =
       } else {
         let [keyName, operation = ''] = key.split(SPLIT_OPERATION);
         let operator;
+        if (operation === '{}') operator = {};
         const field = resource.type.fields.find((f) => f.name === keyName);
         if (field) {
           switch (getFinalType(field.type).name) {
             case 'String':
               operation = operation || '_ilike';
-              operator = {
-                [operation]: operation.includes('like')
-                  ? `%${obj[key]}%`
-                  : obj[key],
-              };
+              if (!operator)
+                operator = {
+                  [operation]: operation.includes('like')
+                    ? `%${obj[key]}%`
+                    : obj[key],
+                };
               filter = set({}, keyName.split(SPLIT_TOKEN), operator);
               break;
             default:
-              operator = {
-                [operation]: operation.includes('like')
-                  ? `%${obj[key]}%`
-                  : obj[key],
-              };
-              filter = set({}, keyName.split(SPLIT_TOKEN), {
-                [operation || '_eq']: obj[key],
-              });
+              if (!operator)
+                operator = {
+                  [operation || '_eq']: operation.includes('like')
+                    ? `%${obj[key]}%`
+                    : obj[key],
+                };
+              filter = set({}, keyName.split(SPLIT_TOKEN), operator);
           }
         } else {
           // Else block runs when the field is not found in Graphql schema.
           // Most likely it's nested. If it's not, it's better to let
           // Hasura fail with a message than silently fail/ignore it
-          operator = {
-            [operation || '_eq']: operation.includes('like')
-              ? `%${obj[key]}%`
-              : obj[key],
-          };
+          if (!operator)
+            operator = {
+              [operation || '_eq']: operation.includes('like')
+                ? `%${obj[key]}%`
+                : obj[key],
+            };
           filter = set({}, keyName.split(SPLIT_TOKEN), operator);
         }
       }
