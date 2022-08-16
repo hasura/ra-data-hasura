@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.3 (August 16, 2022)
+
+- Feature: distinct_on support (#124), thanks to @bharatkashyap
+- Feature: added support for empty operator in buildGetListVariables (#125), thanks to @ofilipowicz
+
 ## 0.5.2 (July 27, 2022)
 
 - Update to GraphQL 16
