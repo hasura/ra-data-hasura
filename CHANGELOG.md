@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.4 (November 22, 2022)
+
+- Update all dependencies
+- Fix: remove `graphql-ast-types-browser` dependency
+
 ## 0.5.3 (August 16, 2022)
 
 - Feature: distinct_on support (#124), thanks to @bharatkashyap

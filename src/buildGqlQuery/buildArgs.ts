@@ -1,4 +1,4 @@
-import * as gqlTypes from 'graphql-ast-types-browser';
+import * as gqlTypes from '../graphql-ast-types-browser';
 import {
   IntrospectionField,
   ArgumentNode,

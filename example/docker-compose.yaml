@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:14
+    image: postgres:15
     restart: always
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: postgrespassword
 
   graphql-engine:
-    image: hasura/graphql-engine:v2.8.4.cli-migrations-v3
+    image: hasura/graphql-engine:v2.15.1.cli-migrations-v3
     volumes:
       - ./hasura/migrations:/hasura-migrations
       - ./hasura/metadata:/hasura-metadata

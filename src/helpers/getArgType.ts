@@ -1,4 +1,4 @@
-import * as gqlTypes from 'graphql-ast-types-browser';
+import * as gqlTypes from '../graphql-ast-types-browser';
 import getFinalType from './getFinalType';
 import isRequired from './isRequired';
 import isList from './isList';
