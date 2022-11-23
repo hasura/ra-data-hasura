@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.7.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
@@ -12,7 +11,7 @@
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "graphql": "^15.6.0",
-    "ra-data-hasura": "^0.5.3",
+    "ra-data-hasura": "^0.5.4",
     "react": "^18.2.0",
     "react-admin": "^4.5.2",
     "react-dom": "^18.2.0",
