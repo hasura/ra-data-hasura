@@ -94,7 +94,7 @@ export const buildGetListVariables: BuildGetListVariables =
           : obj[key];
         filter = set({}, keyName.split(SPLIT_TOKEN), { [operation]: value });
       } else if (obj[key] && obj[key].format === 'hasura-raw-query') {
-        filter = { [key]: obj[key].value || {} };
+        filter = set({}, key.split(SPLIT_TOKEN), obj[key].value || {});
       } else {
         let [keyName, operation = ''] = key.split(SPLIT_OPERATION);
         let operator;
@@ -184,7 +184,7 @@ export const buildGetListVariables: BuildGetListVariables =
     }
 
     if (distinct_on) {
-      result["distinct_on"] = distinct_on;
+      result['distinct_on'] = distinct_on;
     }
 
     return result;
