@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.5 (December 21, 2022)
+
+- Feature: Hasura raw query nested filtering support, thanks to @n3n
+- Feature: Ability to support sorting nulls_first and nulls_last, thanks to @n3n
+- Update: graphql v16
+
 ## 0.5.4 (November 22, 2022)
 
 - Update all dependencies
