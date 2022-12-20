@@ -175,11 +175,11 @@ export const buildGetListVariables: BuildGetListVariables =
         }
 
         const multiSort = fields.map((field: any, index: number) =>
-          set({}, field, orders[index])
+          makeSort(field, orders[index])
         );
         result['order_by'] = multiSort;
       } else {
-        result['order_by'] = set({}, field, order.toLowerCase());
+        result['order_by'] = makeSort(field, order);
       }
     }
 
@@ -189,3 +189,26 @@ export const buildGetListVariables: BuildGetListVariables =
 
     return result;
   };
+
+/**
+ * if the field contains a SPLIT_OPERATION, it means it's column ordering option.
+ *
+ * @example
+ * ```
+ * makeSort('title', 'ASC') => { title: 'asc' }
+ * ```
+ * @example
+ * ```
+ * makeSort('title@nulls_last', 'ASC') => { title: 'asc_nulls_last' }
+ * ```
+ * @example
+ * ```
+ * makeSort('title@nulls_first', 'ASC') => { title: 'asc_nulls_first' }
+ * ```
+ *
+ */
+const makeSort = (field: string, sort: 'ASC' | 'DESC') => {
+  const [fieldName, operation] = field.split(SPLIT_OPERATION);
+  const fieldSort = operation ? `${sort}_${operation}` : sort;
+  return set({}, fieldName, fieldSort.toLowerCase());
+};
