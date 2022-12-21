@@ -1,5 +1,5 @@
 import * as gqlTypes from '../graphql-ast-types-browser';
-import { IntrospectionField } from 'graphql';
+import { IntrospectionField, OperationTypeNode } from 'graphql';
 import {
   GET_LIST,
   GET_MANY,
@@ -91,7 +91,7 @@ export const buildGqlQuery: BuildGqlQuery =
       }
       return gqlTypes.document([
         gqlTypes.operationDefinition(
-          'query',
+          OperationTypeNode.QUERY,
           gqlTypes.selectionSet(gqlArray),
           gqlTypes.name(queryType.name),
           apolloArgs
@@ -108,7 +108,7 @@ export const buildGqlQuery: BuildGqlQuery =
     ) {
       return gqlTypes.document([
         gqlTypes.operationDefinition(
-          'mutation',
+          OperationTypeNode.MUTATION,
           gqlTypes.selectionSet([
             gqlTypes.field(
               gqlTypes.name(queryType.name),
@@ -134,7 +134,7 @@ export const buildGqlQuery: BuildGqlQuery =
 
     return gqlTypes.document([
       gqlTypes.operationDefinition(
-        'query',
+        OperationTypeNode.QUERY,
         gqlTypes.selectionSet([
           gqlTypes.field(
             gqlTypes.name(queryType.name),
