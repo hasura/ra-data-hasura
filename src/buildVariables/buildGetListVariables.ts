@@ -110,7 +110,16 @@ export const buildGetListVariables: BuildGetListVariables =
                     ? `%${obj[key]}%`
                     : obj[key],
                 };
-              filter = set({}, keyName.split(SPLIT_TOKEN), operator);
+              break;
+            case 'jsonb':
+              try {
+                const parsedJSONQuery = JSON.parse(obj[key]);
+                if (parsedJSONQuery) {
+                  operator = {
+                      [operation || '_contains']: parsedJSONQuery
+                  };
+                }
+              } catch (ex) {}
               break;
             default:
               if (!operator)
@@ -119,7 +128,6 @@ export const buildGetListVariables: BuildGetListVariables =
                     ? `%${obj[key]}%`
                     : obj[key],
                 };
-              filter = set({}, keyName.split(SPLIT_TOKEN), operator);
           }
         } else {
           // Else block runs when the field is not found in Graphql schema.
@@ -131,8 +139,8 @@ export const buildGetListVariables: BuildGetListVariables =
                 ? `%${obj[key]}%`
                 : obj[key],
             };
-          filter = set({}, keyName.split(SPLIT_TOKEN), operator);
         }
+        filter = set({}, keyName.split(SPLIT_TOKEN), operator);
       }
       return [...acc, filter];
     };
