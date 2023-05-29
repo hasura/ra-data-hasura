@@ -148,7 +148,7 @@ export const buildGetListVariables: BuildGetListVariables =
       ...(orFilters.length && { _or: orFilters }),
     };
 
-    if (params.pagination) {
+    if (params.pagination && params.pagination.perPage > -1) {
       result['limit'] = parseInt(params.pagination.perPage, 10);
       result['offset'] =
         (params.pagination.page - 1) * params.pagination.perPage;
