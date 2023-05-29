@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.6 (May 29, 2023)
+
+- Feature: Support Disabling Pagination, thanks to @alioguzhan
+- Feature: Support for JSONB filtering, thanks to @jbek7
+
 ## 0.5.5 (December 21, 2022)
 
 - Feature: Hasura raw query nested filtering support, thanks to @n3n
