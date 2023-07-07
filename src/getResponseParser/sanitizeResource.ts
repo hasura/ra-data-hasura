@@ -1,49 +1,36 @@
-export const sanitizeResource = (data: any = {}): object => {
-  const result = Object.keys(data).reduce((acc, key) => {
+function isPrimitive(test: any) {
+  return test !== Object(test);
+}
+export const sanitizeResource = (data: any): any => {
+  // primitive no transformation needed (catches null, undefined, string, number, boolean)
+  if (isPrimitive(data)) {
+    return data;
+  }
+
+  // array, apply sanitizeResource to each element
+  if (Array.isArray(data)) {
+    return data.map(sanitizeResource);
+  }
+
+  // default object, check each (key, value) pair
+  return Object.entries(data).reduce((acc, [key, value]) => {
     // intend to remove the following reserved names https://spec.graphql.org/draft/#sec-Names.Reserved-Names
     if (key.startsWith('__')) {
       return acc;
     }
 
-    const dataKey = data[key];
+    const newAcc: Record<string, any> = { ...acc };
 
-    if (Array.isArray(dataKey)) {
-      if (dataKey[0] && typeof dataKey[0] === 'object') {
-        // if var is an array of reference objects with id properties
-        if (dataKey[0].id != null) {
-          return {
-            ...acc,
-            [key]: dataKey.map(sanitizeResource),
-            [`${key}Ids`]: dataKey.map((d) => d.id),
-          };
-        } else {
-          return {
-            ...acc,
-            [key]: dataKey.map(sanitizeResource),
-          };
-        }
-      } else {
-        return { ...acc, [key]: dataKey };
-      }
+    // if it's an array of objects, we want to create a new key with the list of ids
+    if (Array.isArray(value) && value?.[0]?.id && value?.[0]?.id !== null) {
+      newAcc[`${key}Ids`] = value.map((d) => d.id);
     }
 
-    if (
-      typeof dataKey === 'object' &&
-      dataKey !== null &&
-      dataKey !== undefined
-    ) {
-      return {
-        ...acc,
-        ...(dataKey &&
-          dataKey.id && {
-            [`${key}.id`]: dataKey.id,
-          }),
-        [key]: sanitizeResource(dataKey),
-      };
+    // if it's an object with an id, we want to create a new key with the id
+    if ((value as any)?.id) {
+      newAcc[`${key}.id`] = (value as any).id;
     }
 
-    return { ...acc, [key]: dataKey };
-  }, {});
-
-  return result;
+    return { ...newAcc, [key]: sanitizeResource(value) };
+  }, {} as Record<string, any>);
 };
