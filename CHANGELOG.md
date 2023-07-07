@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 (May 29, 2023)
+
+**Breaking change**
+
+- Preserve array structure with array transformation, thanks to @nihauc12
+
 ## 0.5.6 (May 29, 2023)
 
 - Feature: Support Disabling Pagination, thanks to @alioguzhan
