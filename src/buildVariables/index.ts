@@ -89,7 +89,7 @@ export const buildVariables: BuildVariables =
             params,
             queryType
           ),
-          where: { id: { _eq: params.id } },
+          pk_columns: { id: params.id },
         };
 
       case UPDATE_MANY:
