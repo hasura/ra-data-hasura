@@ -99,9 +99,27 @@ export const buildGqlQuery: BuildGqlQuery =
       ]);
     }
 
+    if (aorFetchType === UPDATE) {
+      return gqlTypes.document([
+        gqlTypes.operationDefinition(
+          OperationTypeNode.MUTATION,
+          gqlTypes.selectionSet([
+            gqlTypes.field(
+              gqlTypes.name(queryType.name),
+              null,
+              args,
+              null,
+              gqlTypes.selectionSet(fields)
+            ),
+          ]),
+          gqlTypes.name(queryType.name),
+          apolloArgs
+        ),
+      ]);
+    }
+
     if (
       aorFetchType === CREATE ||
-      aorFetchType === UPDATE ||
       aorFetchType === UPDATE_MANY ||
       aorFetchType === DELETE ||
       aorFetchType === DELETE_MANY

@@ -21,7 +21,7 @@ export type GetResponseParser = (
 ) => (res: { data: any }) => QueryResponse;
 
 export const getResponseParser: GetResponseParser =
-  () => (aorFetchType) => (res) => {
+  () => (aorFetchType, resource) => (res) => {
     const response = res.data;
 
     switch (aorFetchType) {
@@ -48,10 +48,11 @@ export const getResponseParser: GetResponseParser =
         return { data: sanitizeResource(response.returning[0]) };
 
       case CREATE:
-      case UPDATE:
       case DELETE:
         return { data: sanitizeResource(response.data.returning[0]) };
 
+      case UPDATE:
+        return { data: sanitizeResource(response[resource!.UPDATE.name]) };
       case UPDATE_MANY:
       case DELETE_MANY:
         return { data: response.data.returning.map((x: { id: any }) => x.id) };
