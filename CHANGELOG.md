@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.1 (April 16, 2024)
+
+- Add update by pk feature, thanks to @franzwilhelm
+
 ## 0.6.0 (May 29, 2023)
 
 **Breaking change**

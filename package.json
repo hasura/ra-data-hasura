@@ -1,6 +1,6 @@
 {
   "name": "ra-data-hasura",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A data provider for connecting react-admin to a Hasura endpoint",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
