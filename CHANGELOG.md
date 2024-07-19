@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0 (July 19, 2024)
+
+- Support react-admin v5, thanks to @quentin-decre
+
 ## 0.6.1 (April 16, 2024)
 
 - Add update by pk feature, thanks to @franzwilhelm

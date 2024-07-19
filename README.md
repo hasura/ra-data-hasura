@@ -1,6 +1,6 @@
 # ra-data-hasura
 
-A GraphQL data provider for [react-admin v4](https://marmelab.com/react-admin) tailored to target [Hasura](https://hasura.io/) GraphQL endpoints. For React Admin v3 use v0.4.2 of this library.
+A GraphQL data provider for [react-admin v4](https://marmelab.com/react-admin) tailored to target [Hasura](https://hasura.io/) GraphQL endpoints. For React Admin v3 use v0.4.2 of this library. For React Admin v5 support, use >v0.7.0 of this library.
 
 - [ra-data-hasura](#ra-data-hasura)
   - [Benefits and Motivation](#benefits-and-motivation)
