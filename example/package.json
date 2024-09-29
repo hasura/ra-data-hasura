@@ -14,7 +14,7 @@
     "graphql": "^16.6.0",
     "ra-data-hasura": "^0.5.4",
     "react": "^18.2.0",
-    "react-admin": "^4.6.2",
+    "react-admin": "^4.7.6",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.4",
