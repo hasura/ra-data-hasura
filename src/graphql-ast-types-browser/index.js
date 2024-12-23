@@ -22,7 +22,8 @@ exports.is = is;
 exports.isType = isType;
 exports.validate = validate;
 exports.shallowEqual = shallowEqual;
-require('./definitions/init');
+
+var _require = require('./definitions/init');
 
 var _require = require('./definitions'),
   ALIAS_KEYS = _require.ALIAS_KEYS,
