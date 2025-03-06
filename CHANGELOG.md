@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1 (March 6, 2025)
+
+- Fix a tree shaking bug, thanks to @Rhodanthe1116
+
 ## 0.7.0 (July 19, 2024)
 
 - Support react-admin v5, thanks to @quentin-decre
