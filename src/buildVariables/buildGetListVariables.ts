@@ -83,22 +83,28 @@ export const buildGetListVariables: BuildGetListVariables =
       }
     };
 
-    const filterReducer = (obj: any) => (acc: any, key: any) => {
+    const filterReducer = (obj: any) => (acc: any, key: string) => {
       let filter;
+      // eslint-disable-next-line prefer-const
+      let [keyName, operation, parsedOperationPath] =
+        key.split(SPLIT_OPERATION);
+      const operationPath: string | string[] =
+        (parsedOperationPath
+          ? parsedOperationPath.split(SPLIT_TOKEN)
+          : parsedOperationPath) ?? '';
+
       if (key === 'ids') {
         filter = { id: { _in: obj['ids'] } };
       } else if (Array.isArray(obj[key])) {
-        let [keyName, operation = '_in', opPath] = key.split(SPLIT_OPERATION);
-        let value = opPath
-          ? set({}, opPath.split(SPLIT_TOKEN), obj[key])
+        operation = operation || '_in';
+        const value = operationPath
+          ? set({}, operationPath, obj[key])
           : obj[key];
         filter = set({}, keyName.split(SPLIT_TOKEN), { [operation]: value });
       } else if (obj[key] && obj[key].format === 'hasura-raw-query') {
         filter = set({}, key.split(SPLIT_TOKEN), obj[key].value || {});
       } else {
-        let [keyName, operation = ''] = key.split(SPLIT_OPERATION);
-        let operator;
-        if (operation === '{}') operator = {};
+        let operator = operation === '{}' ? {} : undefined;
         const field = resource.type.fields.find((f) => f.name === keyName);
         if (field) {
           switch (getFinalType(field.type).name) {
@@ -111,34 +117,43 @@ export const buildGetListVariables: BuildGetListVariables =
                     : obj[key],
                 };
               break;
-            case 'jsonb':
+            case 'jsonb': {
+              let value = obj[key];
+              operation = operation || '_contains';
+              // Try to parse the value as json / otherwise just use the current value
               try {
-                const parsedJSONQuery = JSON.parse(obj[key]);
-                if (parsedJSONQuery) {
-                  operator = {
-                      [operation || '_contains']: parsedJSONQuery
-                  };
-                }
-              } catch (ex) {}
+                value = JSON.parse(value);
+              } catch (ex) {
+                // It's not valid json, nothing to do
+              }
+
+              // If there is an operation path, then use it to set the operationValue object
+              const operationValue = operationPath
+                ? set({}, operationPath, value)
+                : value;
+              operator = {
+                [operation]: operationValue,
+              };
               break;
+            }
             default:
-              if (!operator)
-                operator = {
-                  [operation || '_eq']: operation.includes('like')
-                    ? `%${obj[key]}%`
-                    : obj[key],
-                };
+              if (!operator) operation = operation || '_eq';
+              operator = {
+                [operation]: operation?.includes('like')
+                  ? `%${obj[key]}%`
+                  : obj[key],
+              };
           }
         } else {
           // Else block runs when the field is not found in Graphql schema.
           // Most likely it's nested. If it's not, it's better to let
           // Hasura fail with a message than silently fail/ignore it
-          if (!operator)
-            operator = {
-              [operation || '_eq']: operation.includes('like')
-                ? `%${obj[key]}%`
-                : obj[key],
-            };
+          if (!operator) operation = operation || '_eq';
+          operator = {
+            [operation]: operation.includes('like')
+              ? `%${obj[key]}%`
+              : obj[key],
+          };
         }
         filter = set({}, keyName.split(SPLIT_TOKEN), operator);
       }
