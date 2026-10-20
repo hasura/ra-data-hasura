@@ -19,6 +19,13 @@ const SPLIT_TOKEN = '#';
 const MULTI_SORT_TOKEN = ',';
 const SPLIT_OPERATION = '@';
 
+/**
+ * Default primary key column in Hasura/Postgres resources. Appending this to the
+ * sort makes the ordering deterministic, which avoids pagination collisions
+ * when the sorted column contains duplicate values.
+ */
+const PRIMARY_KEY_FIELD = 'id';
+
 export const buildGetListVariables: BuildGetListVariables =
   () => (resource, _, params) => {
     const result: any = {};
@@ -116,7 +123,7 @@ export const buildGetListVariables: BuildGetListVariables =
                 const parsedJSONQuery = JSON.parse(obj[key]);
                 if (parsedJSONQuery) {
                   operator = {
-                      [operation || '_contains']: parsedJSONQuery
+                    [operation || '_contains']: parsedJSONQuery,
                   };
                 }
               } catch (ex) {}
@@ -166,8 +173,23 @@ export const buildGetListVariables: BuildGetListVariables =
       const { field, order } = params.sort;
       const hasMultiSort =
         field.includes(MULTI_SORT_TOKEN) || order.includes(MULTI_SORT_TOKEN);
+
+      /**
+       * SQL sorting is non-deterministic when the sort column contains duplicate
+       * values (e.g. many rows with the same count). Combined with LIMIT/OFFSET
+       * pagination this can return the same row on two pages, which breaks
+       * react-admin's <InfiniteList>. Appending the primary key to the ORDER BY
+       * makes the ordering deterministic and the pages stable.
+       */
+      const sortFields = field.split(MULTI_SORT_TOKEN);
+      const hasIdSort = sortFields.includes(PRIMARY_KEY_FIELD);
+      const hasPrimaryKey = resource.type.fields.some(
+        (f) => f.name === PRIMARY_KEY_FIELD
+      );
+      const appendId = hasPrimaryKey && !hasIdSort;
+
       if (hasMultiSort) {
-        const fields = field.split(MULTI_SORT_TOKEN);
+        const fields = sortFields;
         const orders = order
           .split(MULTI_SORT_TOKEN)
           .map((order: string) => order.toLowerCase());
@@ -185,9 +207,19 @@ export const buildGetListVariables: BuildGetListVariables =
         const multiSort = fields.map((field: any, index: number) =>
           makeSort(field, orders[index])
         );
+        if (appendId) {
+          multiSort.push(makeSort(PRIMARY_KEY_FIELD, orders[0]));
+        }
         result['order_by'] = multiSort;
       } else {
-        result['order_by'] = makeSort(field, order);
+        if (appendId) {
+          result['order_by'] = [
+            makeSort(field, order),
+            makeSort(PRIMARY_KEY_FIELD, order),
+          ];
+        } else {
+          result['order_by'] = makeSort(field, order);
+        }
       }
     }
 
